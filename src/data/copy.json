@@ -1,23 +1,124 @@
 {
-	"meta": { "title": "Title TK", "description": "Description tk." },
-	"body": [
-		{
-			"section": "intro",
-			"content": [
-				{ "type": "h4", "value": "An h4 element with no attributes" },
-				{
-					"type": "text",
-					"value": "Some random text here, followed by an img tag."
-				},
-				{
-					"type": "img",
-					"value": { "src": "../assets/demo/test.jpg", "alt": "A cat" }
-				},
-				{
-					"type": "Test",
-					"value": { "label": "I’m a custom component!", "value": "50" }
-				}
-			]
-		}
-	]
+  "story": [
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_q34",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 – relationship quality"
+    },
+    {
+      "sortgroup_var": "d",
+      "sort_var": "w1_ppage",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 – by age"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_ppincimp",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 – by income"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_ppwork",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 - employment status"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_married",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 - marital status"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_ppeduc",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 - education"
+    },
+    {
+      "sortgroup_var": "d",
+      "sort_var": "w1_ppgender",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 - gender"
+    },
+    {
+      "sortgroup_var": "d",
+      "sort_var": "w1_ppethm",
+      "wave": "w1",
+      "metric": "w1_q34",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w1 - race"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_q34",
+      "wave": "w2",
+      "metric": "w2_relationship_end",
+      "max_metric": "3",
+      "metric_reverse": "true",
+      "colors": "[\"#f0f9ff\", \"#bae6fd\", \"#7dd3fc\", \"#cccccc\"]",
+      "text": "w2 – breakup?"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_q34",
+      "wave": "w2",
+      "metric": "w2_rel_qual_combo",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w2"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_q34",
+      "wave": "w3",
+      "metric": "w3_relationship_end_combo",
+      "max_metric": "3",
+      "metric_reverse": "true",
+      "colors": "[\"#f0f9ff\", \"#bae6fd\", \"#7dd3fc\", \"#cccccc\"]",
+      "text": "w3 - breakup?"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_q34",
+      "wave": "w3",
+      "metric": "w3_rel_qual",
+      "max_metric": "5",
+      "metric_reverse": "true",
+      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
+      "text": "w3"
+    }
+  ]
 }

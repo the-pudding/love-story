@@ -2,7 +2,8 @@
 @import "normalize.css";
 @import "font.css";
 @import "reset.css";
-@import "ui.css"; /* optional for bits UI components */
+@import "ui.css";
+/* optional for bits UI components */
 
 /* colors defined in variables.css */
 :root {
@@ -26,7 +27,7 @@
 	--radius-sm: 0.25rem;
 	--radius-md: 0.5rem;
 	--radius-lg: 1rem;
-	
+
 	--color-bg: var(--color-white);
 	--color-fg: var(--color-gray-900);
 	--color-fg-light: var(--color-gray-500);
@@ -90,4 +91,67 @@ svg {
 	display: block;
 	width: 100%;
 	height: auto;
+}
+#scrolly {
+	margin-top: -100vh;
+}
+.debug {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	background: black;
+	color: white;
+	z-index: 99;
+	padding: 10px;
+}
+
+.scrollyContainer {
+	padding: 100vh 0;
+	position: relative;
+}
+
+.visualContainer {
+	position: sticky;
+	top: 10%;
+	width: 98%;
+	left: 1%;
+	height: 90%;
+}
+
+.legendContainer {
+	position: absolute;
+	bottom: calc(100% + 20px);
+	left: 0px;
+	width: 100%;
+	z-index: 50;
+}
+
+.step {
+	position: relative;
+	pointer-events: auto;
+	height: 100%;
+	padding: 50px 0 0px;
+	/* border: 2px solid red; */
+}
+
+.step .textContainer {
+	position: absolute;
+	background: black;
+	width: 600px;
+	max-width: 90%;
+	padding: 5px 14px 5px 14px;
+	top: 0%;
+	font-size: 16.5px;
+	line-height: 1.5em;
+	transform: translate(-50%, 0%);
+	color: white;
+	margin-left: 50%;
+}
+
+.step:first-child {
+	margin-top: 90vh;
+}
+
+.step:last-child {
+	margin-bottom: 50vh;
 }
