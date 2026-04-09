@@ -84,6 +84,17 @@
       "sortgroup_var": "w1",
       "sort_var": "w1_q34",
       "wave": "w2",
+      "metric": "qual_diff_w1_w2",
+      "min_metric": "-4",
+      "max_metric": "4",
+      "metric_reverse": "true",
+      "colors": "['#4d9221','#7fbc41','#b8e186','#e6f5d0','#f7f7f7','#fde0ef','#f1b6da','#de77ae','#c51b7d']",
+      "text": "w2 – qual diff"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_q34",
+      "wave": "w2",
       "metric": "w2_relationship_end",
       "max_metric": "3",
       "metric_reverse": "true",
@@ -99,6 +110,28 @@
       "metric_reverse": "true",
       "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w2"
+    },
+    {
+      "sortgroup_var": "w1",
+      "sort_var": "w1_q34",
+      "wave": "w3",
+      "metric": "qual_diff_w1_w3",
+      "min_metric": "-4",
+      "max_metric": "4",
+      "metric_reverse": "true",
+      "colors": "['#4d9221','#7fbc41','#b8e186','#e6f5d0','#f7f7f7','#fde0ef','#f1b6da','#de77ae','#c51b7d']",
+      "text": "w3 – qual diff"
+    },
+    {
+      "sortgroup_var": "d",
+      "sort_var": "w1_ppage",
+      "wave": "w3",
+      "metric": "qual_diff_w1_w3",
+      "min_metric": "-4",
+      "max_metric": "4",
+      "metric_reverse": "true",
+      "colors": "['#4d9221','#7fbc41','#b8e186','#e6f5d0','#f7f7f7','#fde0ef','#f1b6da','#de77ae','#c51b7d']",
+      "text": "w3 – qual diff"
     },
     {
       "sortgroup_var": "w1",

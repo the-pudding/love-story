@@ -1,6 +1,6 @@
 <script>
 	import Scrolly from "$components/helpers/Scrolly.svelte";
-	import Person from "$components/love/Person.love.svelte";
+	import Canvas from "$components/love/Main.canvas.love.svelte";
 	import Text from "$components/love/Text.love.svelte";
 	import Legend from "$components/love/Legend.love.svelte";
 
@@ -15,9 +15,24 @@
 	let containerHeight = $state(0);
 	let value = $state(0);
 
-	const personSize = 20;
-	const cols = $derived(Math.floor(containerWidth / personSize) || 1);
-	const rows = $derived(Math.floor(containerHeight / personSize) || 1);
+	// Shared padding constants passed to both the canvas and the DOM label overlay
+	const canvasPadding = 20;
+	const legendHeight = 60; // reserved space at top for the legend
+
+	const cols = $derived(Math.floor((containerWidth - canvasPadding * 2) / personSize) || 1);
+
+	// Compute personSize purely from container dimensions and total person count
+	// so it stays stable as scroll steps change groupings.
+	// Each sprite is ps wide × 2ps tall, so:
+	//   cols = availW / ps,  rows = N / cols
+	//   total area ≈ N * ps * 2ps  →  ps = sqrt(availW * availH / (2 * N))
+	const personSize = $derived.by(() => {
+		if (!containerWidth || !containerHeight || !data.length) return 10;
+		const availW = containerWidth - canvasPadding * 2;
+		const availH = containerHeight - legendHeight - canvasPadding * 2;
+		const ps = Math.sqrt((availW * availH) / (2.8 * data.length));
+		return Math.max(4, Math.min(40, Math.floor(ps)));
+	});
 
 	const sortGroupVar = $derived(copy.story[value]?.sortgroup_var);
 	const sortVar = $derived(copy.story[value]?.sort_var);
@@ -28,6 +43,11 @@
 	const metricIdx = $derived(getVarIndex(wave, metric));
 
 	const maxMetric = $derived(parseFloat(copy.story[value]?.max_metric) || 5);
+	const minMetricFromCopy = $derived(
+		copy.story[value]?.min_metric !== undefined
+			? parseFloat(copy.story[value]?.min_metric)
+			: 0
+	);
 	const metricReverse = $derived(copy.story[value]?.metric_reverse === "true");
 
 	function getVarIndex(group, varName) {
@@ -69,7 +89,6 @@
 
 	const palette = $derived.by(() => {
 		const rawColors = copy.story[value]?.colors;
-		console.log(rawColors);
 		// Fallback palette just in case a stage is missing the colors property
 		const fallback = [
 			"#f0fdfa",
@@ -82,19 +101,23 @@
 		if (!rawColors) return fallback;
 
 		try {
-			// Parse the stringified array from the JSON ("[\"#fff\", ...]")
-			return typeof rawColors === "string" ? JSON.parse(rawColors) : rawColors;
+			// Parse the stringified array from the JSON
+			// Replace single quotes with double quotes for JSON compatibility
+			const normalized =
+				typeof rawColors === "string"
+					? rawColors.replace(/'/g, '"')
+					: rawColors;
+			return typeof normalized === "string"
+				? JSON.parse(normalized)
+				: normalized;
 		} catch (e) {
 			console.error("Failed to parse colors array:", e);
 			return fallback;
 		}
 	});
 
-	const minMetric = $derived.by(() => {
-		if (!metric || !metricTranslations[metric]) return 1;
-		const hasZero = Object.values(metricTranslations[metric]).includes(0);
-		return hasZero ? 0 : 1;
-	});
+	// Use the min_metric from copy (defaults to 0)
+	const minMetric = $derived(minMetricFromCopy);
 
 	const getColor = $derived.by(() => {
 		// Capture current palette in closure
@@ -107,15 +130,20 @@
 			if (val == null) return nullColor;
 
 			const numVal = Number(val);
-			if (isNaN(numVal) || numVal < 0) return nullColor;
+			if (isNaN(numVal)) return nullColor;
 
-			let index = Math.max(
+			// Clamp value to min/max range
+			let clampedVal = Math.max(
 				currentMinMetric,
 				Math.min(numVal, currentMaxMetric)
 			);
 
+			// Calculate palette index (shift so minMetric maps to index 0)
+			let index = clampedVal - currentMinMetric;
+
 			if (currentReverse) {
-				index = currentMaxMetric - index + currentMinMetric;
+				const range = currentMaxMetric - currentMinMetric;
+				index = range - index;
 			}
 
 			return currentPalette[index] || nullColor;
@@ -127,7 +155,7 @@
 		if (metricIdx === -1) return [];
 
 		const items = [];
-		// Loop now starts at our dynamic minMetric (0 or 1)
+		// Loop from minMetric to maxMetric
 		for (let i = minMetric; i <= maxMetric; i++) {
 			items.push({
 				numericValue: i,
@@ -235,77 +263,86 @@
 		return groups;
 	});
 
-	const groupPadding = 40;
+	const groupPadding = 30;
 	const labelHeight = 30;
 
 	const layout = $derived.by(() => {
-    const posMap = new Map();
-    const labelPositions = [];
-    let currentY = 0;
+		const posMap = new Map();
+		const labelPositions = [];
+		let currentY = 0;
 
-    if (sortIdx === -1) {
-        sortedData.forEach((p, i) => {
-            posMap.set(p.id, {
-                x: (i % cols) * personSize,
-                y: Math.floor(i / cols) * personSize
-            });
-        });
-        return { positions: posMap, labels: [] };
-    }
+		if (sortIdx === -1) {
+			sortedData.forEach((p, i) => {
+				posMap.set(p.id, {
+					x: (i % cols) * personSize,
+					y: Math.floor(i / cols) * personSize * 2
+				});
+			});
+			return { positions: posMap, labels: [] };
+		}
 
-    for (const group of groupedData) {
-        labelPositions.push({
-            text: group.label,
-            x: 0,
-            y: currentY
-        });
+		for (const group of groupedData) {
+			labelPositions.push({
+				text: group.label,
+				x: 0,
+				y: currentY
+			});
 
-        currentY += labelHeight;
+			currentY += labelHeight;
 
-        const numItems = group.items.length;
-        
-        // How many columns do we need? Use full width, but not more than we have items
-        const numCols = Math.min(cols, numItems);
-        
-        // Base rows per column (some columns may have one extra)
-        const baseRows = Math.floor(numItems / numCols);
-        const extraItems = numItems % numCols; // This many columns get an extra row
+			const numItems = group.items.length;
 
-        let itemIndex = 0;
-        
-        for (let col = 0; col < numCols; col++) {
-            // Left columns get the extra row
-            const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
-            
-            for (let row = 0; row < rowsInThisCol; row++) {
-                const p = group.items[itemIndex];
-                posMap.set(p.id, {
-                    x: col * personSize,
-                    y: currentY + row * personSize
-                });
-                itemIndex++;
-            }
-        }
+			// How many columns do we need? Use full width, but not more than we have items
+			const numCols = Math.min(cols, numItems);
 
-        // Total rows is the max height (the columns with extra items)
-        const totalRows = baseRows + (extraItems > 0 ? 1 : 0);
-        currentY += totalRows * personSize + groupPadding;
-    }
+			// Base rows per column (some columns may have one extra)
+			const baseRows = Math.floor(numItems / numCols);
+			const extraItems = numItems % numCols; // This many columns get an extra row
 
-    return { positions: posMap, labels: labelPositions };
-});
+			let itemIndex = 0;
+
+			for (let col = 0; col < numCols; col++) {
+				// Left columns get the extra row
+				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
+
+				for (let row = 0; row < rowsInThisCol; row++) {
+					const p = group.items[itemIndex];
+					posMap.set(p.id, {
+						x: col * personSize,
+						y: currentY + row * personSize * 2
+					});
+					itemIndex++;
+				}
+			}
+
+			// Total rows is the max height (the columns with extra items)
+			const totalRows = baseRows + (extraItems > 0 ? 1 : 0);
+			currentY += totalRows * personSize * 2 + groupPadding;
+		}
+
+		return { positions: posMap, labels: labelPositions };
+	});
 
 	const positions = $derived(layout.positions);
 	const labels = $derived(layout.labels);
 
+	const personColors = $derived.by(() => {
+		const m = new Map();
+		for (const person of data) {
+			const rawMetric = metricIdx !== -1 ? person[wave]?.[metricIdx] : null;
+			const metricValue = translateMetric(metric, rawMetric);
+			m.set(person.id, getColor(metricValue));
+		}
+		return m;
+	});
+
 	let innerHeight = $state(0);
 	const triggerOffset = $derived(innerHeight * 0.85);
-	
 </script>
 
 <div class="debug">
-	{sortGroupVar}, {sortVar}, {sortIdx} | {wave}, {metric}, {metricIdx} | max: {maxMetric},
-	reverse: {metricReverse}
+	{sortGroupVar}, {sortVar}, {sortIdx} | {wave}, {metric}, {metricIdx} | min: {minMetric},
+	max: {maxMetric}, reverse: {metricReverse}
 </div>
 
 <svelte:window bind:innerHeight />
@@ -317,40 +354,31 @@
 		bind:clientHeight={containerHeight}
 	>
 		{#if containerWidth > 0}
-			{#if legendData.length > 0}
-				<div class="legendContainer">
-					<Legend items={legendData} />
-				</div>
-			{/if}
+			<Canvas
+				{data}
+				{positions}
+				{personColors}
+				{personSize}
+				padding={canvasPadding}
+				topPadding={legendHeight + canvasPadding}
+				w={containerWidth}
+				h={containerHeight}
+			/>
 
 			{#each labels as label}
 				<div
 					class="groupLabel"
-					style="transform: translate({label.x}px, {label.y}px)"
+					style="transform: translate({label.x + canvasPadding}px, {label.y + legendHeight + canvasPadding}px)"
 				>
 					{label.text}
 				</div>
 			{/each}
 
-			{#each data as p (p.id)}
-				{@const pos = positions.get(p.id)}
-				{@const sortValue = sortIdx !== -1 ? p[sortGroupVar]?.[sortIdx] : null}
-				{@const rawMetric = metricIdx !== -1 ? p[wave]?.[metricIdx] : null}
-				{@const metricValue = translateMetric(metric, rawMetric)}
-				{@const personColor = getColor(metricValue)}
-
-				<Person
-					{p}
-					x={pos.x}
-					y={pos.y}
-					{personSize}
-					{sortValue}
-					{metricValue}
-					{maxMetric}
-					{metricReverse}
-					color={personColor}
-				/>
-			{/each}
+			{#if legendData.length > 0}
+				<div class="legendContainer">
+					<Legend items={legendData} />
+				</div>
+			{/if}
 		{/if}
 	</div>
 	<div class="scrollyContainer">
@@ -366,28 +394,5 @@
 </section>
 
 <style>
-	.step {
-		pointer-events: auto;
-		min-height: 100vh;
-	}
-
-	.step:first-child {
-		margin-top: 90vh;
-	}
-
-	.step:last-child {
-		margin-bottom: 50vh;
-	}
-
-	.groupLabel {
-		position: absolute;
-		top: 0;
-		left: 0;
-		font-family: sans-serif;
-		font-weight: bold;
-		font-size: 14px;
-		color: #333;
-		transition: transform 0.5s ease;
-		pointer-events: none;
-	}
+	
 </style>

@@ -92,9 +92,11 @@ svg {
 	width: 100%;
 	height: auto;
 }
+
 #scrolly {
 	margin-top: -100vh;
 }
+
 .debug {
 	position: fixed;
 	left: 0;
@@ -105,6 +107,18 @@ svg {
 	padding: 10px;
 }
 
+.groupLabel {
+	position: absolute;
+	top: 0;
+	left: 0;
+	font-family: var(--font-sans);
+	font-weight: bold;
+	font-size: 17px;
+	color: #333;
+	transition: transform 0.5s ease;
+	pointer-events: none;
+}
+
 .scrollyContainer {
 	padding: 100vh 0;
 	position: relative;
@@ -112,17 +126,18 @@ svg {
 
 .visualContainer {
 	position: sticky;
-	top: 10%;
-	width: 98%;
-	left: 1%;
-	height: 90%;
+	top: 0;
+	width: 100%;
+	left: 0;
+	height: 100vh;
+	font-family: var(--font-sans);
 }
 
 .legendContainer {
 	position: absolute;
-	bottom: calc(100% + 20px);
-	left: 0px;
-	width: 100%;
+	top: 20px;
+	left: 20px;
+	width: calc(100% - 40px);
 	z-index: 50;
 }
 
@@ -132,6 +147,15 @@ svg {
 	height: 100%;
 	padding: 50px 0 0px;
 	/* border: 2px solid red; */
+	min-height: 100vh;
+}
+
+.step:first-child {
+	margin-top: 90vh;
+}
+
+.step:last-child {
+	margin-bottom: 50vh;
 }
 
 .step .textContainer {

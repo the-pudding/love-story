@@ -15,25 +15,24 @@
     .legend {
         display: flex;
         flex-direction: row;
-        gap: 8px;
+        gap: 10px;
     }
     
     .legend-row {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 4px;
     }
     
     .swatch {
         width: 16px;
         height: 16px;
-        border-radius: 3px;
         border: 1px solid rgba(0,0,0,0.1);
     }
 
     .label {
-        font-family: sans-serif;
-        font-size: 13px;
+        font-family: var(--font-sans);
+        font-size: 17px;
         color: #333;
     }
 </style>
