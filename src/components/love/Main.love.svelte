@@ -13,47 +13,76 @@
 
 	let containerWidth = $state(0);
 	let containerHeight = $state(0);
+
+	// `value` is the step index output by Scrolly (0, 1, 2, 3...).
+	// We alias it as stepIndex so all derivations read from a clearly named variable.
 	let value = $state(0);
+	const stepIndex = $derived(value ?? 0);
 
-	// Shared padding constants passed to both the canvas and the DOM label overlay
+	// Shared padding constants
 	const canvasPadding = 20;
-	const legendHeight = 60; // reserved space at top for the legend
+	const legendHeight = 60;
 
-	const cols = $derived(Math.floor((containerWidth - canvasPadding * 2) / personSize) || 1);
+	// groupPadding shrinks on narrow screens
+	const groupPadding = $derived(containerWidth < 500 ? 12 : 30);
+	const labelHeight = 30;
 
-	// Compute personSize purely from container dimensions and total person count
-	// so it stays stable as scroll steps change groupings.
-	// Each sprite is ps wide × 2ps tall, so:
-	//   cols = availW / ps,  rows = N / cols
-	//   total area ≈ N * ps * 2ps  →  ps = sqrt(availW * availH / (2 * N))
+	// personSize is stable: always reserve space for MAX_GROUPS so icons
+	// don't resize as the user scrolls between steps.
+	const MAX_GROUPS = 6;
 	const personSize = $derived.by(() => {
 		if (!containerWidth || !containerHeight || !data.length) return 10;
 		const availW = containerWidth - canvasPadding * 2;
 		const availH = containerHeight - legendHeight - canvasPadding * 2;
-		const ps = Math.sqrt((availW * availH) / (2.8 * data.length));
+		const overheadH = MAX_GROUPS * (labelHeight + groupPadding);
+		const effectiveH = Math.max(availH - overheadH, availH * 0.5);
+		const ps = Math.sqrt((availW * effectiveH) / (2.8 * data.length));
 		return Math.max(4, Math.min(40, Math.floor(ps)));
 	});
 
-	const sortGroupVar = $derived(copy.story[value]?.sortgroup_var);
-	const sortVar = $derived(copy.story[value]?.sort_var);
-	const sortIdx = $derived(getVarIndex(sortGroupVar, sortVar));
+	const cols = $derived(Math.floor((containerWidth - canvasPadding * 2) / personSize) || 1);
 
-	const wave = $derived(copy.story[value]?.wave);
-	const metric = $derived(copy.story[value]?.metric);
+	// --- Lookup helpers ---
+	function getVarWave(varName) {
+		if (!varName) return null;
+		for (const [w, vars] of Object.entries(lookup)) {
+			if (vars.includes(varName)) return w;
+		}
+		return null;
+	}
+
+	function getVarIndex(wave, varName) {
+		if (!wave || !varName || !lookup[wave]) return -1;
+		return lookup[wave].indexOf(varName);
+	}
+
+	// All story-driven state reads from stepIndex, not value
+	const sortVar = $derived(copy.story[stepIndex]?.sort_var);
+	const sortWave = $derived(getVarWave(sortVar));
+	const sortIdx = $derived(getVarIndex(sortWave, sortVar));
+
+	const metric = $derived(copy.story[stepIndex]?.metric);
+	const wave = $derived(getVarWave(metric));
 	const metricIdx = $derived(getVarIndex(wave, metric));
 
-	const maxMetric = $derived(parseFloat(copy.story[value]?.max_metric) || 5);
-	const minMetricFromCopy = $derived(
-		copy.story[value]?.min_metric !== undefined
-			? parseFloat(copy.story[value]?.min_metric)
-			: 0
+	const metricReverse = $derived(copy.story[stepIndex]?.metric_reverse === "true");
+	const zoomId = $derived(
+		copy.story[stepIndex]?.zoom_id !== undefined
+			? Number(copy.story[stepIndex].zoom_id)
+			: null
 	);
-	const metricReverse = $derived(copy.story[value]?.metric_reverse === "true");
+	const zoomLabel = $derived(copy.story[stepIndex]?.zoom_label ?? null);
 
-	function getVarIndex(group, varName) {
-		if (!group || !varName || !lookup[group]) return -1;
-		return lookup[group].indexOf(varName);
+	// --- Derive min/max directly from metricTranslations ---
+	function getMetricRange(metricName) {
+		const translations = metricTranslations[metricName];
+		if (!translations) return { min: 0, max: 5 };
+		const values = Object.values(translations).map(Number);
+		return { min: Math.min(...values), max: Math.max(...values) };
 	}
+
+	const minMetric = $derived(getMetricRange(metric).min);
+	const maxMetric = $derived(getMetricRange(metric).max);
 
 	function translateMetric(metricName, rawValue) {
 		if (rawValue === null || rawValue === undefined) return null;
@@ -74,7 +103,6 @@
 		const translations = metricTranslations[metricName];
 		if (!translations) return targetNumber;
 
-		// Loop through the translation dictionary to find the matching text key
 		for (const [textKey, mappedValue] of Object.entries(translations)) {
 			if (Number(mappedValue) === Number(targetNumber)) {
 				return textKey;
@@ -85,11 +113,9 @@
 	}
 
 	// --- Color Scale Logic ---
-	const nullColor = "#e2e8f0"; // Keep a static gray for null/N/A values
+	const nullColor = "#e2e8f0";
 
 	const palette = $derived.by(() => {
-		const rawColors = copy.story[value]?.colors;
-		// Fallback palette just in case a stage is missing the colors property
 		const fallback = [
 			"#f0fdfa",
 			"#a5f3fc",
@@ -98,11 +124,15 @@
 			"#1d4ed8",
 			"#1e3a8a"
 		];
+
+		// 1. Prefer copy.colors keyed by metric name
+		if (copy.colors?.[metric]) return copy.colors[metric];
+
+		// 2. Fall back to per-step colors field (legacy)
+		const rawColors = copy.story[stepIndex]?.colors;
 		if (!rawColors) return fallback;
 
 		try {
-			// Parse the stringified array from the JSON
-			// Replace single quotes with double quotes for JSON compatibility
 			const normalized =
 				typeof rawColors === "string"
 					? rawColors.replace(/'/g, '"')
@@ -116,14 +146,19 @@
 		}
 	});
 
-	// Use the min_metric from copy (defaults to 0)
-	const minMetric = $derived(minMetricFromCopy);
+	// Build a sorted array of the unique numeric values in this metric's
+	// translation map. palette[i] maps to sortedValues[i], so non-sequential
+	// values (e.g. -1, 1, 2, 3, 4, 5 with no 0) map correctly without gaps.
+	const sortedMetricValues = $derived.by(() => {
+		const translations = metricTranslations[metric];
+		if (!translations) return [];
+		const vals = [...new Set(Object.values(translations).map(Number))].sort((a, b) => a - b);
+		return vals;
+	});
 
 	const getColor = $derived.by(() => {
-		// Capture current palette in closure
 		const currentPalette = palette;
-		const currentMinMetric = minMetric;
-		const currentMaxMetric = maxMetric;
+		const currentValues = sortedMetricValues;
 		const currentReverse = metricReverse;
 
 		return (val) => {
@@ -132,18 +167,11 @@
 			const numVal = Number(val);
 			if (isNaN(numVal)) return nullColor;
 
-			// Clamp value to min/max range
-			let clampedVal = Math.max(
-				currentMinMetric,
-				Math.min(numVal, currentMaxMetric)
-			);
-
-			// Calculate palette index (shift so minMetric maps to index 0)
-			let index = clampedVal - currentMinMetric;
+			let index = currentValues.indexOf(numVal);
+			if (index === -1) return nullColor;
 
 			if (currentReverse) {
-				const range = currentMaxMetric - currentMinMetric;
-				index = range - index;
+				index = currentValues.length - 1 - index;
 			}
 
 			return currentPalette[index] || nullColor;
@@ -151,19 +179,25 @@
 	});
 
 	// --- Legend Data Generator ---
+	// Build from translation keys directly so stray entries like "0" and
+	// "Refused" from the Google Sheet never appear in the legend.
 	const legendData = $derived.by(() => {
 		if (metricIdx === -1) return [];
 
-		const items = [];
-		// Loop from minMetric to maxMetric
-		for (let i = minMetric; i <= maxMetric; i++) {
-			items.push({
-				numericValue: i,
-				label: getTextLabel(metric, i),
-				color: getColor(i)
-			});
-		}
-		return items;
+		const translations = metricTranslations[metric];
+		if (!translations) return [];
+
+		return Object.entries(translations)
+			.map(([label, numericValue]) => ({
+				numericValue: Number(numericValue),
+				label,
+				color: getColor(Number(numericValue))
+			}))
+			.filter(item => item.numericValue >= minMetric && item.numericValue <= maxMetric)
+			.filter((item, _, arr) =>
+				arr.filter(x => x.numericValue === item.numericValue).sort((a, b) => a.label.length - b.label.length)[0].label === item.label
+			)
+			.sort((a, b) => a.numericValue - b.numericValue);
 	});
 
 	// --- Sort Logic ---
@@ -172,20 +206,17 @@
 			return [...data].sort((a, b) => a.id - b.id);
 		}
 
-		// Get the sort order from metricTranslations keys (preserves the order they were defined)
 		const sortOrder = metricTranslations[sortVar]
 			? Object.keys(metricTranslations[sortVar])
 			: [];
 
 		return [...data].sort((a, b) => {
-			const rawA = a[sortGroupVar]?.[sortIdx];
-			const rawB = b[sortGroupVar]?.[sortIdx];
+			const rawA = a[sortWave]?.[sortIdx];
+			const rawB = b[sortWave]?.[sortIdx];
 
-			// For string values, use the order from metricTranslations
 			const strA = rawA == null ? null : String(rawA);
 			const strB = rawB == null ? null : String(rawB);
 
-			// Primary sort: by group variable using translation key order
 			if (strA !== strB) {
 				if (strA == null) return 1;
 				if (strB == null) return -1;
@@ -193,19 +224,13 @@
 				const orderA = sortOrder.indexOf(strA);
 				const orderB = sortOrder.indexOf(strB);
 
-				// If both are in the sortOrder, use that order
-				if (orderA !== -1 && orderB !== -1) {
-					return orderA - orderB;
-				}
-				// If only one is found, put the unknown one at the end
+				if (orderA !== -1 && orderB !== -1) return orderA - orderB;
 				if (orderA !== -1) return -1;
 				if (orderB !== -1) return 1;
 
-				// Fallback to string comparison
 				return strA.localeCompare(strB);
 			}
 
-			// Secondary sort: by metric value WITHIN the same group
 			if (metricIdx !== -1) {
 				const rawMetricA = a[wave]?.[metricIdx];
 				const rawMetricB = b[wave]?.[metricIdx];
@@ -217,36 +242,30 @@
 				if (metricA == null) return 1;
 				if (metricB == null) return -1;
 
-				const numMetA = Number(metricA);
-				const numMetB = Number(metricB);
-
-				return numMetA - numMetB;
+				return Number(metricA) - Number(metricB);
 			}
 
-			// Tertiary sort: stable by ID
 			return a.id - b.id;
 		});
 	});
 
-	// --- Grouping and Layout Logic ---
+	// --- Grouping Logic ---
 	const groupedData = $derived.by(() => {
 		const groups = [];
-		let currentGroupRaw = undefined; // Use undefined so null can be a valid group
+		let currentGroupRaw = undefined;
 		let currentGroup = null;
 
 		for (const item of sortedData) {
-			const rawVal = sortIdx !== -1 ? item[sortGroupVar]?.[sortIdx] : null;
+			const rawVal = sortIdx !== -1 ? item[sortWave]?.[sortIdx] : null;
 
-			// Group by the RAW value, not the translated value
 			if (rawVal !== currentGroupRaw || !currentGroup) {
 				currentGroupRaw = rawVal;
 
-				// Get display label - use raw value directly if it's a string, otherwise reverse lookup
 				let textLabel;
 				if (rawVal === null || rawVal === undefined) {
 					textLabel = "N/A";
 				} else if (typeof rawVal === "string") {
-					textLabel = rawVal; // Already a readable string like "Less than $50,000"
+					textLabel = rawVal;
 				} else {
 					textLabel = getTextLabel(sortVar, rawVal);
 				}
@@ -263,9 +282,7 @@
 		return groups;
 	});
 
-	const groupPadding = 30;
-	const labelHeight = 30;
-
+	// --- Layout Logic ---
 	const layout = $derived.by(() => {
 		const posMap = new Map();
 		const labelPositions = [];
@@ -282,27 +299,18 @@
 		}
 
 		for (const group of groupedData) {
-			labelPositions.push({
-				text: group.label,
-				x: 0,
-				y: currentY
-			});
+			labelPositions.push({ text: group.label, x: 0, y: currentY });
 
 			currentY += labelHeight;
 
 			const numItems = group.items.length;
-
-			// How many columns do we need? Use full width, but not more than we have items
 			const numCols = Math.min(cols, numItems);
-
-			// Base rows per column (some columns may have one extra)
 			const baseRows = Math.floor(numItems / numCols);
-			const extraItems = numItems % numCols; // This many columns get an extra row
+			const extraItems = numItems % numCols;
 
 			let itemIndex = 0;
 
 			for (let col = 0; col < numCols; col++) {
-				// Left columns get the extra row
 				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
 
 				for (let row = 0; row < rowsInThisCol; row++) {
@@ -315,7 +323,6 @@
 				}
 			}
 
-			// Total rows is the max height (the columns with extra items)
 			const totalRows = baseRows + (extraItems > 0 ? 1 : 0);
 			currentY += totalRows * personSize * 2 + groupPadding;
 		}
@@ -326,12 +333,21 @@
 	const positions = $derived(layout.positions);
 	const labels = $derived(layout.labels);
 
+	// If a step specifies null_value, use it to color people with missing data
+	// e.g. Single people have null for w1_q34 but should get palette[0]
+	const nullValue = $derived(
+		copy.story[stepIndex]?.null_value !== undefined
+			? Number(copy.story[stepIndex].null_value)
+			: null
+	);
+
 	const personColors = $derived.by(() => {
 		const m = new Map();
 		for (const person of data) {
 			const rawMetric = metricIdx !== -1 ? person[wave]?.[metricIdx] : null;
 			const metricValue = translateMetric(metric, rawMetric);
-			m.set(person.id, getColor(metricValue));
+			const colorValue = metricValue == null && nullValue !== null ? nullValue : metricValue;
+			m.set(person.id, getColor(colorValue));
 		}
 		return m;
 	});
@@ -341,8 +357,7 @@
 </script>
 
 <div class="debug">
-	{sortGroupVar}, {sortVar}, {sortIdx} | {wave}, {metric}, {metricIdx} | min: {minMetric},
-	max: {maxMetric}, reverse: {metricReverse}
+	sort: {sortVar} (wave: {sortWave}, idx: {sortIdx}) | metric: {metric} (wave: {wave}, idx: {metricIdx}) | min: {minMetric}, max: {maxMetric}, reverse: {metricReverse}
 </div>
 
 <svelte:window bind:innerHeight />
@@ -359,6 +374,8 @@
 				{positions}
 				{personColors}
 				{personSize}
+				{zoomId}
+				{zoomLabel}
 				padding={canvasPadding}
 				topPadding={legendHeight + canvasPadding}
 				w={containerWidth}
@@ -384,7 +401,7 @@
 	<div class="scrollyContainer">
 		<Scrolly increments={100} top={triggerOffset} showLine={true} bind:value>
 			{#each copy.story as stage, i}
-				{@const active = value === i}
+				{@const active = stepIndex === i}
 				<div class="step" class:active>
 					<Text copy={stage.text} />
 				</div>

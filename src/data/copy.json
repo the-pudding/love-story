@@ -1,157 +1,157 @@
 {
   "story": [
     {
-      "sortgroup_var": "w1",
-      "sort_var": "w1_q34",
-      "wave": "w1",
-      "metric": "w1_q34",
-      "max_metric": "5",
+      "sort_var": "",
+      "metric": "",
+      "zoom_id": "45",
+      "zoom_label": "hi",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 – relationship quality"
     },
     {
-      "sortgroup_var": "d",
       "sort_var": "w1_ppage",
-      "wave": "w1",
       "metric": "w1_q34",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 – by age"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_ppincimp",
-      "wave": "w1",
       "metric": "w1_q34",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 – by income"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_ppwork",
-      "wave": "w1",
       "metric": "w1_q34",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 - employment status"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_married",
-      "wave": "w1",
       "metric": "w1_q34",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 - marital status"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_ppeduc",
-      "wave": "w1",
       "metric": "w1_q34",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 - education"
     },
     {
-      "sortgroup_var": "d",
       "sort_var": "w1_ppgender",
-      "wave": "w1",
       "metric": "w1_q34",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 - gender"
     },
     {
-      "sortgroup_var": "d",
       "sort_var": "w1_ppethm",
-      "wave": "w1",
       "metric": "w1_q34",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w1 - race"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_q34",
-      "wave": "w2",
       "metric": "qual_diff_w1_w2",
-      "min_metric": "-4",
-      "max_metric": "4",
       "metric_reverse": "true",
-      "colors": "['#4d9221','#7fbc41','#b8e186','#e6f5d0','#f7f7f7','#fde0ef','#f1b6da','#de77ae','#c51b7d']",
       "text": "w2 – qual diff"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_q34",
-      "wave": "w2",
       "metric": "w2_relationship_end",
-      "max_metric": "3",
       "metric_reverse": "true",
-      "colors": "[\"#f0f9ff\", \"#bae6fd\", \"#7dd3fc\", \"#cccccc\"]",
       "text": "w2 – breakup?"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_q34",
-      "wave": "w2",
       "metric": "w2_rel_qual_combo",
-      "max_metric": "5",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w2"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_q34",
-      "wave": "w3",
       "metric": "qual_diff_w1_w3",
-      "min_metric": "-4",
-      "max_metric": "4",
       "metric_reverse": "true",
-      "colors": "['#4d9221','#7fbc41','#b8e186','#e6f5d0','#f7f7f7','#fde0ef','#f1b6da','#de77ae','#c51b7d']",
       "text": "w3 – qual diff"
     },
     {
-      "sortgroup_var": "d",
       "sort_var": "w1_ppage",
-      "wave": "w3",
       "metric": "qual_diff_w1_w3",
-      "min_metric": "-4",
-      "max_metric": "4",
       "metric_reverse": "true",
-      "colors": "['#4d9221','#7fbc41','#b8e186','#e6f5d0','#f7f7f7','#fde0ef','#f1b6da','#de77ae','#c51b7d']",
       "text": "w3 – qual diff"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_q34",
-      "wave": "w3",
       "metric": "w3_relationship_end_combo",
-      "max_metric": "3",
       "metric_reverse": "true",
-      "colors": "[\"#f0f9ff\", \"#bae6fd\", \"#7dd3fc\", \"#cccccc\"]",
       "text": "w3 - breakup?"
     },
     {
-      "sortgroup_var": "w1",
       "sort_var": "w1_q34",
-      "wave": "w3",
       "metric": "w3_rel_qual",
-      "max_metric": "5",
       "metric_reverse": "true",
       "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
       "text": "w3"
     }
-  ]
+  ],
+  "colors": {
+    "w1_q34": [
+      "#6d28d9",
+      "#7c3aed",
+      "#8b5cf6",
+      "#a78bfa",
+      "#c4b5fd",
+      "#10b981"
+    ],
+    "qual_diff_w1_w2": [
+      "#4d9221",
+      "#7fbc41",
+      "#b8e186",
+      "#e6f5d0",
+      "#f7f7f7",
+      "#fde0ef",
+      "#f1b6da",
+      "#de77ae",
+      "#c51b7d"
+    ],
+    "qual_diff_w1_w3": [
+      "#4d9221",
+      "#7fbc41",
+      "#b8e186",
+      "#e6f5d0",
+      "#f7f7f7",
+      "#fde0ef",
+      "#f1b6da",
+      "#de77ae",
+      "#c51b7d"
+    ],
+    "w2_relationship_end": [
+      "#f0f9ff",
+      "#bae6fd",
+      "#7dd3fc",
+      "#cccccc"
+    ],
+    "w3_relationship_end_combo": [
+      "#f0f9ff",
+      "#bae6fd",
+      "#7dd3fc",
+      "#cccccc"
+    ],
+    "w2_rel_qual_combo": [
+      "#6d28d9",
+      "#7c3aed",
+      "#8b5cf6",
+      "#a78bfa",
+      "#c4b5fd",
+      "#10b981"
+    ],
+    "w3_rel_qual": [
+      "#6d28d9",
+      "#7c3aed",
+      "#8b5cf6",
+      "#a78bfa",
+      "#c4b5fd",
+      "#10b981"
+    ]
+  }
 }
