@@ -12,11 +12,17 @@
 </header>
 
 <style>
+	header {
+		position:relative;
+		display:block;
+		z-index:999;
+	}
 	.wordmark {
 		max-width: 14em;
 		margin: 0 auto;
 		padding: 32px 0;
 		transform: rotate(-4deg);
+		z-index:999;
 	}
 
 	.wordmark a {

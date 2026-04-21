@@ -46,6 +46,9 @@
 	--color-input-fg: var(--color-gray-900);
 	--color-placeholder: var(--color-gray-500);
 
+	--bgcolor: #28202e;
+	--textColor: #a399a8;
+
 	/* "1" second duration */
 	--1s: 1ms;
 }
@@ -86,7 +89,9 @@ h5 {
 h6 {
 	font-size: var(--20px, 20px);
 }
-
+body {
+	background: var(--bgcolor);
+}
 svg {
 	display: block;
 	width: 100%;
@@ -101,7 +106,7 @@ svg {
 	position: fixed;
 	left: 0;
 	bottom: 0;
-	background: black;
+	background: #999;
 	color: white;
 	z-index: 99;
 	padding: 10px;

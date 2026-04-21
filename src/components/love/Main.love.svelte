@@ -376,20 +376,12 @@
 				{personSize}
 				{zoomId}
 				{zoomLabel}
+				{labels}
 				padding={canvasPadding}
 				topPadding={legendHeight + canvasPadding}
 				w={containerWidth}
 				h={containerHeight}
 			/>
-
-			{#each labels as label}
-				<div
-					class="groupLabel"
-					style="transform: translate({label.x + canvasPadding}px, {label.y + legendHeight + canvasPadding}px)"
-				>
-					{label.text}
-				</div>
-			{/each}
 
 			{#if legendData.length > 0}
 				<div class="legendContainer">
