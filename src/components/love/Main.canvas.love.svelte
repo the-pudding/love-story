@@ -1,10 +1,11 @@
 <script>
 	import { onMount, onDestroy } from "svelte";
+	import copy from "$data/copy.json";
 	const bgColor = getComputedStyle(document.documentElement)
 		.getPropertyValue("--bgcolor")
 		.trim();
 	const textColor = "#a399a8";
-	const firstID = 45;
+	const firstID = Number(copy.story[0]?.zoom_id) || null;
 	let {
 		data,
 		positions, // Map<id, {x, y}>
@@ -16,7 +17,9 @@
 		padding = 20,
 		topPadding = 20,
 		w,
-		h
+		h,
+		onpersonclick = null,
+		fastMode = false
 	} = $props();
 
 	// Mutable state object read by the p5 sketch each frame.
@@ -47,6 +50,8 @@
 		state.zoomId = zoomId;
 		state.zoomLabel = zoomLabel;
 		state.labels = labels ?? [];
+		state.onpersonclick = onpersonclick;
+		state.fastMode = fastMode;
 	});
 
 	let container;
@@ -90,7 +95,7 @@
 				p.random(canvasW) - canvasW / 2,
 				-h / 2 - state.personSize * 2
 			);
-			if (this.id == firstID) {
+			if (firstID && this.id == firstID) {
 				this.loc = p.createVector(
 					p.random(-canvasW / 6, canvasW / 6),
 					p.random(-h / 10, h / 10)
@@ -99,7 +104,7 @@
 			this.target_loc = p.createVector(0, 0);
 			this.vel = p.createVector(0, 0);
 			this.acc = p.createVector(0, 0);
-			this.topSpeed = p.random(5, 8);
+			this.topSpeed = p.random(8, 15);
 			this.distance = 100;
 			this.frameCount = 0;
 		}
@@ -139,12 +144,13 @@
 			);
 			this.distance = desired.mag();
 			desired.normalize();
+			const speedMult = state.fastMode ? 20 : 1;
 			const speed =
 				this.distance < 100
-					? p.map(this.distance, 0, 100, 0, this.topSpeed)
-					: this.topSpeed;
+					? p.map(this.distance, 0, 100, 0, this.topSpeed * speedMult)
+					: this.topSpeed * speedMult;
 			desired.mult(speed);
-			this.vel.lerp(desired, 0.2);
+			this.vel.lerp(desired, state.fastMode ? 0.6 : 0.2);
 
 			if (this.distance < 3) {
 				this.vel.mult(0.5);
@@ -160,7 +166,7 @@
 			const isZoomed = state.zoomId !== null;
 
 			this.vel.add(this.acc);
-			this.vel.limit(this.topSpeed);
+			this.vel.limit(this.topSpeed * (state.fastMode ? 4 : 1));
 			this.loc.add(this.vel);
 			this.acc.mult(0);
 
@@ -274,7 +280,8 @@
 			// Load Atlas Grotesk Bold for group labels
 			atlasFont = await new Promise((resolve) => {
 				p.loadFont(
-					"https://pudding.cool/assets/fonts/atlas/AtlasGrotesk-Bold-Web.woff2",
+					// "https://pudding.cool/assets/fonts/atlas/AtlasGrotesk-Bold-Web.woff2",
+					"https://pudding.cool/assets/fonts/atlas/AtlasTypewriter-Medium-Web.woff2",
 					resolve
 				);
 			});
@@ -351,6 +358,23 @@
 					p.text(label.text, lx, ly);
 				}
 			}
+		};
+		p.mouseClicked = (event) => {
+			if (event?.target?.closest?.(".textContainer, .step.longcopy")) return;
+			const ps = state.personSize;
+			const worldX = (p.mouseX - canvasW / 2) / zoom;
+			const worldY = (p.mouseY - canvasH / 2) / zoom;
+			let found = null;
+			for (const person of all_people) {
+				if (
+					Math.abs(worldX - person.loc.x) < ps / 2 &&
+					Math.abs(worldY - person.loc.y) < ps
+				) {
+					found = person.id;
+					break;
+				}
+			}
+			state.onpersonclick?.(found);
 		};
 	};
 

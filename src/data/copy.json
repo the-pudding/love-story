@@ -1,157 +1,262 @@
 {
+  "hed": "A love story",
   "story": [
     {
+      "chart_title": "",
       "sort_var": "",
       "metric": "",
-      "zoom_id": "45",
-      "zoom_label": "hi",
+      "zoom_id": "524",
+      "zoom_label": "",
+      "addclass": "hide",
       "metric_reverse": "true",
-      "text": "w1 – relationship quality"
+      "text": ""
     },
     {
-      "sort_var": "w1_ppage",
-      "metric": "w1_q34",
+      "chart_title": "",
+      "sort_var": "",
+      "metric": "",
+      "zoom_id": "524",
+      "zoom_label": "",
       "metric_reverse": "true",
-      "text": "w1 – by age"
+      "text": "Once upon a time, there was a boy named Robert—or at least that’s what we’ll call him."
     },
     {
-      "sort_var": "w1_ppincimp",
-      "metric": "w1_q34",
+      "chart_title": "",
+      "sort_var": "",
+      "metric": "",
+      "zoom_id": "524",
+      "zoom_label": "",
       "metric_reverse": "true",
-      "text": "w1 – by income"
+      "text": "In the 1960s, Robert went to college and met a girl. We’ll call her Linda."
     },
     {
-      "sort_var": "w1_ppwork",
-      "metric": "w1_q34",
+      "chart_title": "",
+      "sort_var": "",
+      "metric": "",
+      "zoom_id": "524",
+      "zoom_label": "",
       "metric_reverse": "true",
-      "text": "w1 - employment status"
+      "text": "A few years later, during an unusually rainy season in January, they started dating."
     },
     {
-      "sort_var": "w1_married",
-      "metric": "w1_q34",
+      "chart_title": "",
+      "sort_var": "",
+      "metric": "",
+      "zoom_id": "524",
+      "zoom_label": "",
       "metric_reverse": "true",
-      "text": "w1 - marital status"
+      "text": "Then a few years after that, they got married."
     },
     {
-      "sort_var": "w1_ppeduc",
-      "metric": "w1_q34",
+      "chart_title": "",
+      "sort_var": "",
+      "metric": "",
+      "zoom_id": "524",
+      "zoom_label": "",
       "metric_reverse": "true",
-      "text": "w1 - education"
+      "text": "Eventually they had two kids, bought a single-family home, and built successful careers."
     },
     {
+      "chart_title": "",
+      "sort_var": "",
+      "metric": "",
+      "zoom_id": "524",
+      "zoom_label": "",
+      "metric_reverse": "true",
+      "text": "Decades later, in 2017, Robert was asked how his relationship is.\r\n\r\n\r\nHe said it was excellent."
+    },
+    {
+      "chart_title": "Partnership status, 2017",
+      "sort_var": "",
+      "metric": "w1_partnership_status",
+      "metric_reverse": "true",
+      "text": "Robert is one of the thousands of people Stanford University researchers have been [tracking](https://data.stanford.edu/hcmst2017) to understand how couples meet, how they separate, and what their relationships is like.\r\n\r\n\r\nBut it’s 2017, so a global pandemic is coming soon. Relationships will be strained. Single people will have to reinvent dating.\r\n\r\n\r\nIt will be a profound test of what we expect of partnerships in the modern day. \r\n\r\n\r\n<div class=smallText>This piece only visualizes people who participated in every wave of this survey.</div>"
+    },
+    {
+      "chart_title": "Quality of relationship, 2017",
+      "sort_var": "w1_partnership_status",
+      "metric": "w1_rel_qual_bucket",
+      "metric_reverse": "true",
+      "text": "For now, most partnered people say their relationships are quite good."
+    },
+    {
+      "chart_title": "Quality of relationship, 2017",
       "sort_var": "w1_ppgender",
-      "metric": "w1_q34",
+      "metric": "w1_rel_qual_bucket",
       "metric_reverse": "true",
-      "text": "w1 - gender"
+      "text": "Men are slightly more likely to say their relationship is excellent.\r\n\r\n\r\n>> Chart | Data"
     },
     {
-      "sort_var": "w1_ppethm",
-      "metric": "w1_q34",
+      "chart_title": "Quality of relationship, 2017",
+      "sort_var": "w1_ppincimp",
+      "metric": "w1_rel_qual_bucket",
       "metric_reverse": "true",
-      "text": "w1 - race"
+      "text": "People with more money tend to report better relationships—partially because they have more time and resources to devote to their partners."
     },
     {
-      "sort_var": "w1_q34",
-      "metric": "qual_diff_w1_w2",
+      "chart_title": "Quality of relationship, 2017",
+      "sort_var": "w1_ppage",
+      "metric": "w1_rel_qual_bucket",
       "metric_reverse": "true",
-      "text": "w2 – qual diff"
+      "text": "The other factor is that older people tend to have more money, and they’ve had more time to find and develop high-quality relationships. \r\n\r\n\r\nBut there’s a deeper story in the lower quality of young people’s relationships."
     },
     {
-      "sort_var": "w1_q34",
+      "chart_title": "Quality of relationship, 2017",
+      "sort_var": "w1_partnership_status",
+      "metric": "w1_partnership_status",
+      "metric_reverse": "true",
+      "addclass": "covid",
+      "text": "But what happened to everyone else we met in 2017?",
+      "zoom_id": "524",
+      "zoom_label": ""
+    },
+    {
+      "chart_title": "What happened to relationships from 2017 to 2020",
+      "sort_var": "w1_partnership_status",
       "metric": "w2_relationship_end",
       "metric_reverse": "true",
-      "text": "w2 – breakup?"
+      "text": "Half a year into the pandemic, there were a lot of breakups among people who were partnered but not married; a handful of divorces; and sadly several partners died."
     },
     {
-      "sort_var": "w1_q34",
-      "metric": "w2_rel_qual_combo",
+      "chart_title": "Partnership status, 2020",
+      "sort_var": "w2_partner_type",
+      "metric": "w2_partner_type",
       "metric_reverse": "true",
-      "text": "w2"
+      "text": "In turn, the pandemic created more single people."
     },
     {
-      "sort_var": "w1_q34",
-      "metric": "qual_diff_w1_w3",
+      "chart_title": "How often couples fought in past week, 2020",
+      "sort_var": "w2_partner_type",
+      "metric": "w2_fight_bucket",
       "metric_reverse": "true",
-      "text": "w3 – qual diff"
+      "text": "But even among people who stayed together, many said they fought with their partner multiple times in the past week."
     },
     {
-      "sort_var": "w1_ppage",
-      "metric": "qual_diff_w1_w3",
+      "chart_title": "Relationship quality in 2017",
+      "sort_var": "w1_rel_qual_bucket",
+      "metric": "w1_rel_qual_bucket",
       "metric_reverse": "true",
-      "text": "w3 – qual diff"
+      "text": "If we look at how people assessed their relationships in 2017…"
     },
     {
-      "sort_var": "w1_q34",
-      "metric": "w3_relationship_end_combo",
+      "chart_title": "How relationship quality changes from 2017 to 2020",
+      "sort_var": "w1_rel_qual_bucket",
+      "metric": "qual_diff_w1_w2_simple",
       "metric_reverse": "true",
-      "text": "w3 - breakup?"
+      "text": "… we can see that by fall 2020, a lot of people rated their relationship worse than it was before."
     },
     {
-      "sort_var": "w1_q34",
-      "metric": "w3_rel_qual",
+      "chart_title": "How relationship quality changes from 2017 to 2020",
+      "sort_var": "w1_rel_qual_bucket",
+      "metric": "qual_diff_w1_w2_simple",
       "metric_reverse": "true",
-      "colors": "[\"#6d28d9\", \"#7c3aed\", \"#8b5cf6\", \"#a78bfa\", \"#c4b5fd\", \"#10b981\"]",
-      "text": "w3"
+      "addclass": "longcopy",
+      "text": "Early in our lives, love stories are chiseled into our minds. They hypnotize us with scripts of what it should look like—and feel like—to fall in love. We see montages of dates, proposals, and ultimately a wedding. And then we see glimpses of what we should expect in happy marriages.\r\n\r\n\r\nThose stories are shaped by the societal expectations we have of our relationships, but those expectations have shifted drastically over time. [Historians](https://www.jstor.org/stable/3600162) often break down modern conceptions of American marriage into three eras. \r\n\r\n\r\n>> Three eras\r\n\r\n\r\n**Before the 1850s**, marriage was about survival. Partnerships were about ensuring financial success, while continuing your family line. It certainly wasn’t about a strong emotional connection with another person.\r\n\r\n\r\n**From the 1850s to 1960s**, marriage became more about companionship. Spouses were friends and lovers. But the success of a marriage was often defined by how well we filled specific roles—as breadwinners, homemakers, parents. These expectations were so dominant that marriage was essentially mandatory.\r\n\r\n\r\n>> Charts on marriage rates + median age of marriage\r\n\r\n\r\nBut during this era, something was brewing under the surface. Sociologist Francesca Cancian analyzed the kind of marriage advice popular magazines offered during this period, and found that these rigid and traditional expectations eroded and were replaced by expectations that allowed individuals to shape their marriage based on their own preferences. \r\n\r\n\r\nIn other words, people rebelled against the stories.\r\n\r\n>> Cancian data | Data\r\n\r\n\r\nSociologist Eli J. Finkel [argues](https://www.nytimes.com/2014/02/15/opinion/sunday/the-all-or-nothing-marriage.html) that our evolving expectations of marriage have followed Maslow’s hierarchy of needs. Initially we chose our relationships based on survival; then we wanted to feel loved; and then we wanted relationships that helped us be the people we want to be.\r\n\r\n\r\n>> Maslow: Psychological well being/safety, belonging/love, self-actualization\r\n\r\n\r\n**Since the 1960s**, marriage has been about how it can support our individual happiness and personal growth. This era has been defined by partners negotiating a relationship that works for both people, in all aspects of their lives. \r\n\r\n\r\nThat said, the classic love story still captures our imaginations. So that means we want relationships that provide security, passion, intellectual stimulation, and personal growth. We expect more from our partners than ever before—an “all-or-nothing” arrangement, Finkel [says](https://www.amazon.com/All-Nothing-Marriage-Best-Marriages/dp/052595516X).\r\n\r\n\r\nWhen our relationships can’t meet our high and sometimes rigid expectations, we’re unsatisfied.\r\n\r\n\r\nBut when our relationships live up to these expectations—especially in the face of an external threat—we’re happier than ever."
+    },
+    {
+      "chart_title": "How relationship quality, 2020",
+      "sort_var": "w2_rel_qual_bucket",
+      "metric": "w2_rel_qual_bucket",
+      "metric_reverse": "true",
+      "text": "Here is how people rated the quality of their relationships in 2020. When asked how the pandemic changed their relationship…"
+    },
+    {
+      "chart_title": "How the pandemic changed their relationship, 2020",
+      "sort_var": "w2_rel_qual_bucket",
+      "metric": "w2_coronavirus_effect_combo",
+      "metric_reverse": "true",
+      "text": "… a large chunk of people who were in excellent relationships said it actually improved their relationship even more! In other words, they had hit the top of the relationship quality scale, and just needed a way to express improvement."
+    },
+    {
+      "chart_title": "How the pandemic changed their relationship, 2022",
+      "sort_var": "w3_rel_qual_bucket",
+      "metric": "w3_coronavirus_effect_combo",
+      "metric_reverse": "true",
+      "text": "And two years later, after the pandemic, even more people in excellent relationships said that the pandemic improved their partnership.\r\n\r\n\r\n>> Chart"
+    },
+    {
+      "chart_title": "How the pandemic changed their relationship, 2022",
+      "sort_var": "",
+      "metric": "w3_coronavirus_effect_combo",
+      "metric_reverse": "true",
+      "text": "Sure, they’ve fought a bit in the past week—but that hasn’t undermined their lifelong partnership. \r\n\r\n\r\nRobert still says they’re doing excellent.",
+      "zoom_id": "524",
+      "addclass": "hide"
+    },
+    {
+      "chart_title": "Partnership status, 2022",
+      "sort_var": "w3_partner_type",
+      "metric": "w3_partner_type",
+      "metric_reverse": "true",
+      "text": "On the opposite end of the spectrum are single people. And the end of pandemic lockdowns has meant that people can start dating again.\r\n\r\n\r\n>> Chart"
+    },
+    {
+      "chart_title": "Partnership status, 2022",
+      "sort_var": "w3_partner_type",
+      "metric": "w3_partner_type",
+      "metric_reverse": "true",
+      "text": "But even years after the pandemic, there are more single people than before.\r\n\r\n\r\n>> Chart | Data"
+    },
+    {
+      "chart_title": "Met someone for romantic reasons, 2022",
+      "sort_var": "w3_partner_type",
+      "metric": "w3_otherdate",
+      "metric_reverse": "true",
+      "text": "Only a small portion of people have met someone for a date, romance, or sex.\r\n\r\n\r\n(Some people in relationships also said they did this, too.)"
+    },
+    {
+      "chart_title": "Met partner online, 2022",
+      "sort_var": "w3_relationship_duration_bucket",
+      "metric": "w3_Q32_simple",
+      "metric_reverse": "false",
+      "icon_reverse": "true",
+      "text": "Perhaps one big reason is that a lot of dating is now done through apps—and these days people [really don’t enjoy](https://www.theatlantic.com/technology/archive/2024/04/dating-apps-are-starting-crack/678022/) that experience.\r\n\r\n\r\n>> Chart | Data\r\n\r\n\r\nBut I think there’s something else happening under the surface."
+    },
+    {
+      "chart_title": "",
+      "sort_var": "w3_relationship_duration_bucket",
+      "metric": "w3_Q32_simple",
+      "metric_reverse": "true",
+      "addclass": "longcopy",
+      "text": "It’s tempting to think that we’ve taken a wrong turn somewhere along the line. The average quality of relationships is down. More people are single. And young people [don’t](https://www.rasmussenreports.com/public_content/lifestyle/general_lifestyle/june_2025/dating_37_of_young_singles_aren_t_interested) even want to date.\r\n\r\n\r\nSome argue this is the inevitable result of a self-centered culture—one that ignores traditional values in favor of personal happiness. And they aren’t entirely wrong: Those traditions provided clear and rigid expectations and a comfortable script for many people to follow. It created a society where almost everyone got married. Those scripts were repeated in our favorite love stories, and they captured our hearts and minds. If that love story is so beautiful, how could we want anything else?\r\n\r\n\r\nYet this story doesn’t work for many people. Women are expected to perform most of the domestic labor, while being submissive and deferential to their husbands. Men are expected to be providers and protectors, even when what the world needs is nurturers and partners. This means that in our most intimate relationship, we can’t even be yourselves; we have to be boy and girl, man and woman, husband and wife.\r\n\r\n\r\nThat’s why young people of the past few generations have said they want something else—an egalitarian relationship that is less based on traditional gender roles, and more about what we need and want as individuals. After all, we live in an era where we don’t need to marry for economic gain, to preserve social class, or for our family legacies. We don't need friends or family to introduce us to potential partners. We can choose our relationships for ourselves!\r\n\r\n\r\nStill, the traditional love story is powerful. \r\n\r\n\r\nIn every generation, researchers have studied how people act in the courting process and in relationships. They’ve found that, despite the huge economic and technologic changes, many people still perform their traditional gender roles in relationships—even if they want to live another story."
+    },
+    {
+      "chart_title": "Quality of relationship, 2022",
+      "sort_var": "w3_partner_type",
+      "metric": "w3_rel_qual_bucket",
+      "metric_reverse": "true",
+      "text": "When we look at these charts, we often look at the relationships that aren’t working—the ones that are failing, or have failed. But I want to point out something else."
+    },
+    {
+      "chart_title": "Quality of relationship, 2022",
+      "sort_var": "w3_rel_qual_bucket",
+      "metric": "w3_rel_qual_bucket",
+      "metric_reverse": "true",
+      "text": "Most people rate their relationship as excellent or good. And very few people rate their relationships as fair or worse."
+    },
+    {
+      "chart_title": "Quality of relationship, 2022",
+      "sort_var": "w3_relationship_duration_bucket",
+      "metric": "w3_rel_qual_bucket",
+      "metric_reverse": "true",
+      "text": "And the longer they are together, the more likely they are to say their relationship is excellent."
+    },
+    {
+      "chart_title": "Quality of relationship, 2022",
+      "sort_var": "w3_relationship_duration_bucket",
+      "metric": "w3_rel_qual_bucket",
+      "metric_reverse": "true",
+      "addclass": "longcopy",
+      "text": "When I was a kid, my relatives would often tell me about my future wife, and what she would think if I continued to be messy, lazy, and mean. If I went astray, perhaps she wouldn’t marry me. Perhaps I’d be alone.\r\n\r\n\r\nShe was an invented character, but that woman—or the idea of what woman—shaped my life. I combined those expectations with the heart-fluttering stories I saw on TV, and convinced myself that my life goal was to find this imaginary soulmate. She would love me, because that is her purpose in this story, and in turn she would marry me and have my kids.\r\n\r\n\r\nSeeing happy couples like Robert and Linda was evidence that these love stories were not only real, but also attainable.\r\n\r\n\r\nBut imagining myself living this story, with this imaginary woman, always felt a bit off. Who is she? What does *she* want? What do *I* want? And what if those pieces don’t fit together into a workable love story—one  that could be told in a pithy five-minute speech during the wedding reception? \r\n\r\n\r\nMost importantly, what if I didn’t want to live that story?\r\n\r\n\r\nIt turns out I didn’t have to. Because there was a real person who wanted to write a new story with me—and that we could choose how the story goes. I still watch movies about traditional love stories and find myself tearing up; I still hear about the Roberts and Lindas of the world and feel warm fuzzy feelings. \r\n\r\n\r\nBut it’s time for us to write new love stories. It’s what we want—it’s what we deserve."
+    },
+    {
+      "chart_title": "Quality of relationship, 2022",
+      "sort_var": "",
+      "metric": "",
+      "metric_reverse": "true",
+      "text": "**Explore the data**"
     }
   ],
-  "colors": {
-    "w1_q34": [
-      "#6d28d9",
-      "#7c3aed",
-      "#8b5cf6",
-      "#a78bfa",
-      "#c4b5fd",
-      "#10b981"
-    ],
-    "qual_diff_w1_w2": [
-      "#4d9221",
-      "#7fbc41",
-      "#b8e186",
-      "#e6f5d0",
-      "#f7f7f7",
-      "#fde0ef",
-      "#f1b6da",
-      "#de77ae",
-      "#c51b7d"
-    ],
-    "qual_diff_w1_w3": [
-      "#4d9221",
-      "#7fbc41",
-      "#b8e186",
-      "#e6f5d0",
-      "#f7f7f7",
-      "#fde0ef",
-      "#f1b6da",
-      "#de77ae",
-      "#c51b7d"
-    ],
-    "w2_relationship_end": [
-      "#f0f9ff",
-      "#bae6fd",
-      "#7dd3fc",
-      "#cccccc"
-    ],
-    "w3_relationship_end_combo": [
-      "#f0f9ff",
-      "#bae6fd",
-      "#7dd3fc",
-      "#cccccc"
-    ],
-    "w2_rel_qual_combo": [
-      "#6d28d9",
-      "#7c3aed",
-      "#8b5cf6",
-      "#a78bfa",
-      "#c4b5fd",
-      "#10b981"
-    ],
-    "w3_rel_qual": [
-      "#6d28d9",
-      "#7c3aed",
-      "#8b5cf6",
-      "#a78bfa",
-      "#c4b5fd",
-      "#10b981"
-    ]
-  }
+  "methods": "<h6>Data</h6>\r\nRosenfeld, Michael J., Reuben J. Thomas, and Sonia Hausen. 2023. How Couples Meet and Stay Together 2017-2020-2022 combined dataset. [Computer files]. Stanford, CA: Stanford University Libraries. https://data.stanford.edu/hcmst2017",
+  "colors": {}
 }

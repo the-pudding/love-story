@@ -3,10 +3,13 @@
 	import Canvas from "$components/love/Main.canvas.love.svelte";
 	import Text from "$components/love/Text.love.svelte";
 	import Legend from "$components/love/Legend.love.svelte";
+	import Modal from "$components/love/Modal.love.svelte";
+	import { varDescriptions } from "$utils/varDescriptions.js";
 
 	import panelData from "$data/panel_all3waves.json";
 	import copy from "$data/copy.json";
 	import metricTranslations from "$data/metricTranslations.json";
+	import chartConfig from "$data/chartConfig.json";
 
 	const data = panelData.data;
 	const lookup = panelData.lookup;
@@ -15,13 +18,17 @@
 	let containerHeight = $state(0);
 
 	// `value` is the step index output by Scrolly (0, 1, 2, 3...).
-	// We alias it as stepIndex so all derivations read from a clearly named variable.
-	let value = $state(0);
+	// Null/undefined between steps defaults to step 0.
+	let value = $state(undefined);
 	const stepIndex = $derived(value ?? 0);
 
 	// Shared padding constants
 	const canvasPadding = 20;
-	const legendHeight = 60;
+	const baseLegendHeight = 60;
+	const chartTitleHeight = 22;
+
+	const chartTitle = $derived(copy.story[stepIndex]?.chart_title ?? null);
+	const legendHeight = $derived(baseLegendHeight + (chartTitle ? chartTitleHeight : 0));
 
 	// groupPadding shrinks on narrow screens
 	const groupPadding = $derived(containerWidth < 500 ? 12 : 30);
@@ -40,7 +47,9 @@
 		return Math.max(4, Math.min(40, Math.floor(ps)));
 	});
 
-	const cols = $derived(Math.floor((containerWidth - canvasPadding * 2) / personSize) || 1);
+	const cols = $derived(
+		Math.floor((containerWidth - canvasPadding * 2) / personSize) || 1
+	);
 
 	// --- Lookup helpers ---
 	function getVarWave(varName) {
@@ -56,16 +65,24 @@
 		return lookup[wave].indexOf(varName);
 	}
 
+	let debugSortVar = $state("");
+	let debugMetric = $state("");
+
 	// All story-driven state reads from stepIndex, not value
-	const sortVar = $derived(copy.story[stepIndex]?.sort_var);
+	const sortVar = $derived(debugSortVar || copy.story[stepIndex]?.sort_var);
 	const sortWave = $derived(getVarWave(sortVar));
 	const sortIdx = $derived(getVarIndex(sortWave, sortVar));
 
-	const metric = $derived(copy.story[stepIndex]?.metric);
+	const metric = $derived(debugMetric || copy.story[stepIndex]?.metric);
 	const wave = $derived(getVarWave(metric));
 	const metricIdx = $derived(getVarIndex(wave, metric));
 
-	const metricReverse = $derived(copy.story[stepIndex]?.metric_reverse === "true");
+	const metricReverse = $derived(
+		copy.story[stepIndex]?.metric_reverse === "true"
+	);
+	const iconReverse = $derived(
+		copy.story[stepIndex]?.icon_reverse === "true"
+	);
 	const zoomId = $derived(
 		copy.story[stepIndex]?.zoom_id !== undefined
 			? Number(copy.story[stepIndex].zoom_id)
@@ -99,17 +116,31 @@
 	}
 
 	// --- Reverse Text Lookup ---
+	const norm = (s) => String(s).toLowerCase();
+
+	function getChartLabel(metricName, rawLabel) {
+		const entry = chartConfig.colors?.[metricName];
+		if (!entry || Array.isArray(entry)) return null;
+		const firstVal = Object.values(entry)[0];
+		if (!Array.isArray(firstVal)) return null;
+		const match = Object.entries(entry).find(([k]) => norm(k) === norm(rawLabel));
+		return match ? match[1][0] : null;
+	}
+
 	function getTextLabel(metricName, targetNumber) {
 		const translations = metricTranslations[metricName];
 		if (!translations) return targetNumber;
 
+		let fallback = null;
 		for (const [textKey, mappedValue] of Object.entries(translations)) {
 			if (Number(mappedValue) === Number(targetNumber)) {
-				return textKey;
+				const chartLabel = getChartLabel(metricName, textKey);
+				if (chartLabel) return chartLabel;
+				if (!fallback) fallback = textKey;
 			}
 		}
 
-		return targetNumber;
+		return fallback ?? targetNumber;
 	}
 
 	// --- Color Scale Logic ---
@@ -125,8 +156,20 @@
 			"#1e3a8a"
 		];
 
-		// 1. Prefer copy.colors keyed by metric name
-		if (copy.colors?.[metric]) return copy.colors[metric];
+		// Resolve a color value: if it's a named palette entry, return the hex; otherwise pass through.
+		const resolveColor = (c) => chartConfig.palette?.[c] ?? c;
+
+		// 1. Prefer chartConfig.colors keyed by metric name.
+		// Supports tuple format { rawLabel: ["Display", colorNameOrHex] } — extract and resolve color only.
+		const entry = chartConfig.colors?.[metric];
+		if (entry) {
+			if (Array.isArray(entry)) return entry.map(resolveColor);
+			const firstVal = Object.values(entry)[0];
+			if (Array.isArray(firstVal)) {
+				return Object.fromEntries(Object.entries(entry).map(([k, v]) => [k, resolveColor(v[1])]));
+			}
+			return Object.fromEntries(Object.entries(entry).map(([k, v]) => [k, resolveColor(v)]));
+		}
 
 		// 2. Fall back to per-step colors field (legacy)
 		const rawColors = copy.story[stepIndex]?.colors;
@@ -152,15 +195,51 @@
 	const sortedMetricValues = $derived.by(() => {
 		const translations = metricTranslations[metric];
 		if (!translations) return [];
-		const vals = [...new Set(Object.values(translations).map(Number))].sort((a, b) => a - b);
+		const vals = [...new Set(Object.values(translations).map(Number))].sort(
+			(a, b) => a - b
+		);
 		return vals;
 	});
+
+	// Push negative values to the end only for metrics where negatives are a
+	// categorical outlier (e.g. "Single" = -1 in rel_qual). For symmetric
+	// diverging scales like qual_diff (which include 0), keep natural order.
+	const negToEnd = $derived(
+		sortedMetricValues.length > 0 && !sortedMetricValues.includes(0)
+	);
 
 	const getColor = $derived.by(() => {
 		const currentPalette = palette;
 		const currentValues = sortedMetricValues;
 		const currentReverse = metricReverse;
+		const translations = metricTranslations[metric];
 
+		// Dict-format palette: keys are label names, e.g. { "Better": "#4d9221" }.
+		// Look up by reversing the numeric value back to its label, with
+		// case-insensitive matching so Google Doc keys (e.g. "divorce") match
+		// translation labels (e.g. "Divorce"). Handles duplicate translation keys
+		// like "(1) Divorce" and "Divorce" by trying all that share the same value.
+		if (currentPalette && !Array.isArray(currentPalette)) {
+			const norm = (s) => s.toLowerCase();
+			const paletteByNorm = Object.fromEntries(
+				Object.entries(currentPalette).map(([k, v]) => [norm(k), v])
+			);
+			return (val) => {
+				if (val == null) return nullColor;
+				const numVal = Number(val);
+				if (isNaN(numVal) || !translations) return nullColor;
+				const labels = Object.keys(translations).filter(
+					(k) => Number(translations[k]) === numVal
+				);
+				for (const label of labels) {
+					const color = paletteByNorm[norm(label)];
+					if (color) return color;
+				}
+				return nullColor;
+			};
+		}
+
+		// Array-format palette: index-based with optional reversal.
 		return (val) => {
 			if (val == null) return nullColor;
 
@@ -187,23 +266,56 @@
 		const translations = metricTranslations[metric];
 		if (!translations) return [];
 
-		return Object.entries(translations)
+		const items = Object.entries(translations)
 			.map(([label, numericValue]) => ({
 				numericValue: Number(numericValue),
-				label,
+				label: getChartLabel(metric, label) ?? label,
 				color: getColor(Number(numericValue))
 			}))
-			.filter(item => item.numericValue >= minMetric && item.numericValue <= maxMetric)
-			.filter((item, _, arr) =>
-				arr.filter(x => x.numericValue === item.numericValue).sort((a, b) => a.label.length - b.label.length)[0].label === item.label
+			.filter(
+				(item) =>
+					item.numericValue >= minMetric && item.numericValue <= maxMetric
 			)
-			.sort((a, b) => a.numericValue - b.numericValue);
+			.filter(
+				(item, _, arr) =>
+					arr
+						.filter((x) => x.numericValue === item.numericValue)
+						.sort((a, b) => a.label.length - b.label.length)[0].label ===
+					item.label
+			)
+			.sort((a, b) => {
+				if (negToEnd) {
+					const negA = a.numericValue < 0;
+					const negB = b.numericValue < 0;
+					if (negA && !negB) return 1;
+					if (!negA && negB) return -1;
+				}
+				return a.numericValue - b.numericValue;
+			});
+
+		return iconReverse ? items.reverse() : items;
 	});
 
 	// --- Sort Logic ---
 	const sortedData = $derived.by(() => {
 		if (sortIdx === -1) {
-			return [...data].sort((a, b) => a.id - b.id);
+			if (metricIdx === -1) return [...data].sort((a, b) => a.id - b.id);
+			return [...data].sort((a, b) => {
+				const metricA = translateMetric(metric, a[wave]?.[metricIdx]);
+				const metricB = translateMetric(metric, b[wave]?.[metricIdx]);
+				if (metricA == null && metricB == null) return 0;
+				if (metricA == null) return 1;
+				if (metricB == null) return -1;
+				const numA = Number(metricA);
+				const numB = Number(metricB);
+				if (negToEnd) {
+					const negA = numA < 0;
+					const negB = numB < 0;
+					if (negA && !negB) return 1;
+					if (!negA && negB) return -1;
+				}
+				return numA - numB;
+			});
 		}
 
 		const sortOrder = metricTranslations[sortVar]
@@ -242,7 +354,15 @@
 				if (metricA == null) return 1;
 				if (metricB == null) return -1;
 
-				return Number(metricA) - Number(metricB);
+				const numA = Number(metricA);
+				const numB = Number(metricB);
+				if (negToEnd) {
+					const negA = numA < 0;
+					const negB = numB < 0;
+					if (negA && !negB) return 1;
+					if (!negA && negB) return -1;
+				}
+				return numA - numB;
 			}
 
 			return a.id - b.id;
@@ -265,7 +385,7 @@
 				if (rawVal === null || rawVal === undefined) {
 					textLabel = "N/A";
 				} else if (typeof rawVal === "string") {
-					textLabel = rawVal;
+					textLabel = getChartLabel(sortVar, rawVal) ?? rawVal;
 				} else {
 					textLabel = getTextLabel(sortVar, rawVal);
 				}
@@ -279,7 +399,7 @@
 			}
 			currentGroup.items.push(item);
 		}
-		return groups;
+		return iconReverse ? groups.reverse() : groups;
 	});
 
 	// --- Layout Logic ---
@@ -289,12 +409,21 @@
 		let currentY = 0;
 
 		if (sortIdx === -1) {
-			sortedData.forEach((p, i) => {
-				posMap.set(p.id, {
-					x: (i % cols) * personSize,
-					y: Math.floor(i / cols) * personSize * 2
-				});
-			});
+			const n = sortedData.length;
+			const numCols = Math.min(cols, n);
+			const baseRows = Math.floor(n / numCols);
+			const extraItems = n % numCols;
+			let itemIndex = 0;
+			for (let col = 0; col < numCols; col++) {
+				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
+				for (let row = 0; row < rowsInThisCol; row++) {
+					posMap.set(sortedData[itemIndex].id, {
+						x: col * personSize,
+						y: row * personSize * 2
+					});
+					itemIndex++;
+				}
+			}
 			return { positions: posMap, labels: [] };
 		}
 
@@ -330,8 +459,68 @@
 		return { positions: posMap, labels: labelPositions };
 	});
 
-	const positions = $derived(layout.positions);
-	const labels = $derived(layout.labels);
+	const isCovid = $derived(copy.story[stepIndex]?.addclass === "covid");
+
+	const covidPositions = $derived.by(() => {
+		if (!isCovid || !containerWidth || !containerHeight) return null;
+
+		const posMap = new Map();
+
+		// 9 groups summing to 20, sizes 1–3
+		const groupSizes = [3, 1, 2, 3, 2, 1, 3, 2, 3];
+
+		// Variation offsets within each cell (as fraction of cell size)
+		// so groups don't all sit in the same corner
+		const offsets = [
+			[0.1, 0.2],
+			[0.5, 0.3],
+			[0.2, 0.55],
+			[0.35, 0.15],
+			[0.55, 0.45],
+			[0.1, 0.6],
+			[0.4, 0.25],
+			[0.2, 0.4],
+			[0.6, 0.15]
+		];
+
+		const gridCols = 3;
+		const gridRows = 3;
+		const availW = containerWidth - canvasPadding * 2;
+		const availH = containerHeight - legendHeight - canvasPadding * 2;
+		const cellW = availW / gridCols;
+		const cellH = availH / gridRows;
+
+		let personIdx = 0;
+
+		for (let g = 0; g < groupSizes.length; g++) {
+			const row = Math.floor(g / gridCols);
+			const col = g % gridCols;
+			const [ox, oy] = offsets[g];
+			const cx = canvasPadding + col * cellW + ox * cellW;
+			const cy = legendHeight + canvasPadding + row * cellH + oy * cellH;
+
+			for (let p = 0; p < groupSizes[g]; p++) {
+				const person = sortedData[personIdx++];
+				if (!person) break;
+				posMap.set(person.id, { x: cx + p * personSize * 1.6, y: cy });
+			}
+		}
+
+		// Send everyone else off the top at varied x positions, matching
+		// how the zoom effect scatters non-focused people off-screen.
+		for (let i = personIdx; i < sortedData.length; i++) {
+			const person = sortedData[i];
+			const spreadX = ((person.id % 60) / 60) * containerWidth;
+			posMap.set(person.id, { x: spreadX, y: -containerHeight - 100 });
+		}
+
+		return posMap;
+	});
+
+	const positions = $derived(
+		isCovid && covidPositions ? covidPositions : layout.positions
+	);
+	const labels = $derived(isCovid ? [] : layout.labels);
 
 	// If a step specifies null_value, use it to color people with missing data
 	// e.g. Single people have null for w1_q34 but should get palette[0]
@@ -346,18 +535,28 @@
 		for (const person of data) {
 			const rawMetric = metricIdx !== -1 ? person[wave]?.[metricIdx] : null;
 			const metricValue = translateMetric(metric, rawMetric);
-			const colorValue = metricValue == null && nullValue !== null ? nullValue : metricValue;
+			const colorValue =
+				metricValue == null && nullValue !== null ? nullValue : metricValue;
 			m.set(person.id, getColor(colorValue));
 		}
 		return m;
 	});
 
 	let innerHeight = $state(0);
-	const triggerOffset = $derived(innerHeight * 0.85);
+	const triggerOffset = $derived(innerHeight * 0.1);
+
+	let clickedPersonId = $state(null);
+
+	const waveYear = { w1: "2017", w2: "2020", w3: "2022" };
+	const currentYear = $derived(waveYear[wave] ?? null);
+	let debugFast = $state(false);
+	const fastMode = $derived(!!(debugSortVar || debugMetric || debugFast));
 </script>
 
 <div class="debug">
-	sort: {sortVar} (wave: {sortWave}, idx: {sortIdx}) | metric: {metric} (wave: {wave}, idx: {metricIdx}) | min: {minMetric}, max: {maxMetric}, reverse: {metricReverse}
+	step: {value} | sort: {sortVar} (wave: {sortWave}, idx: {sortIdx}) | metric: {metric}
+	(wave: {wave}, idx: {metricIdx}) | min: {minMetric}, max: {maxMetric},
+	reverse: {metricReverse}
 </div>
 
 <svelte:window bind:innerHeight />
@@ -377,14 +576,25 @@
 				{zoomId}
 				{zoomLabel}
 				{labels}
-				padding={canvasPadding}
+				sort_varpadding={canvasPadding}
 				topPadding={legendHeight + canvasPadding}
 				w={containerWidth}
 				h={containerHeight}
+				onpersonclick={(id) => {
+					clickedPersonId = id;
+				}}
+				{fastMode}
 			/>
+
+			<!-- {#if currentYear}
+				<div class="yearLabel">{currentYear}</div>
+			{/if} -->
 
 			{#if legendData.length > 0}
 				<div class="legendContainer">
+					{#if chartTitle}
+						<div class="chartTitle">{chartTitle}</div>
+					{/if}
 					<Legend items={legendData} />
 				</div>
 			{/if}
@@ -394,7 +604,7 @@
 		<Scrolly increments={100} top={triggerOffset} showLine={true} bind:value>
 			{#each copy.story as stage, i}
 				{@const active = stepIndex === i}
-				<div class="step" class:active>
+				<div class="step {stage.addclass ?? ''}" class:active>
 					<Text copy={stage.text} />
 				</div>
 			{/each}
@@ -402,6 +612,157 @@
 	</div>
 </section>
 
+<div class="headlineContainer">
+	<h1 class="hed">{copy.hed}</h1>
+	<h2 class="byline">
+		by <a href="https://pudding.cool/author/alvin-chang/">alvin chang</a>
+	</h2>
+</div>
+
+<div class="methods">
+	<h4>Methodology</h4>
+	<p>TKTKT TKTK TKTKT KTKTK TKTKTKTK</p>
+	<Text copy={copy.methods} />
+</div>
+
+<Modal
+	{data}
+	lookup={panelData.lookup}
+	{clickedPersonId}
+	onclose={() => {
+		clickedPersonId = null;
+	}}
+/>
+
+<div class="debugControls">
+	<button
+		class="fastBtn"
+		class:active={debugFast}
+		onclick={() => (debugFast = !debugFast)}
+	>
+		⚡ fast mode
+	</button>
+	<label>
+		sort_var
+		<select bind:value={debugSortVar}>
+			<option value="">— story</option>
+			{#each Object.entries(panelData.lookup) as [waveKey, vars]}
+				<optgroup label={waveKey}>
+					{#each vars as v}
+						{#if v}
+							<option value={v}>{varDescriptions[v] ?? v}</option>
+						{/if}
+					{/each}
+				</optgroup>
+			{/each}
+		</select>
+	</label>
+	<label>
+		metric
+		<select bind:value={debugMetric}>
+			<option value="">— story</option>
+			{#each Object.entries(panelData.lookup) as [waveKey, vars]}
+				<optgroup label={waveKey}>
+					{#each vars as v}
+						{#if v}
+							<option value={v}>{varDescriptions[v] ?? v}</option>
+						{/if}
+					{/each}
+				</optgroup>
+			{/each}
+		</select>
+	</label>
+</div>
+
 <style>
-	
+	.headlineContainer {
+		width: 90%;
+		max-width: 800px;
+		color: white;
+		position: absolute;
+		left: 50%;
+		top: 25%;
+		text-align: center;
+		transform: translate(-50%, -50%);
+		text-transform: lowercase;
+		transition: all 1500ms cubic-bezier(0, 1.02, 0.435, 1); /* custom */
+		transition-timing-function: cubic-bezier(0, 1.02, 0.435, 1); /* custom */
+	}
+	.headlineContainer h1 {
+		font-size: 27px;
+		line-height: 0px;
+	}
+	.headlineContainer .byline {
+		font-size: 15px;
+		color: #b58ab1;
+		margin-top:20px;
+	}
+	.headlineContainer .byline a {
+		color: #ff70d4;
+	}
+	.debugControls {
+		position: fixed;
+		bottom: 16px;
+		right: 16px;
+		z-index: 9999;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		background: rgba(0, 0, 0, 0.75);
+		padding: 8px 10px;
+		border-radius: 6px;
+		font-size: 11px;
+		color: white;
+	}
+	.debugControls label {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+	.fastBtn {
+		font-size: 13px;
+		font-weight: bold;
+		padding: 6px 12px;
+		border-radius: 4px;
+		border: 2px solid #555;
+		background: #222;
+		color: #aaa;
+		cursor: pointer;
+		letter-spacing: 0.02em;
+	}
+	.fastBtn.active {
+		background: #f59e0b;
+		border-color: #f59e0b;
+		color: black;
+	}
+	.debugControls select {
+		font-size: 11px;
+		background: #222;
+		color: white;
+		border: 1px solid #555;
+		border-radius: 3px;
+		padding: 2px 4px;
+	}
+
+	.yearLabel {
+		position: absolute;
+		top: 12px;
+		right: 16px;
+		font-size: 1.4rem;
+		font-weight: bold;
+		color: white;
+		z-index: 10;
+		pointer-events: none;
+	}
+
+	.chartTitle {
+		font-family: var(--font-mono);
+		font-size: 18px;
+		font-weight: bold;
+		color: #fff;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		line-height: 1;
+		margin-bottom: 4px;
+	}
 </style>

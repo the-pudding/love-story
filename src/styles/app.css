@@ -46,8 +46,9 @@
 	--color-input-fg: var(--color-gray-900);
 	--color-placeholder: var(--color-gray-500);
 
-	--bgcolor: #28202e;
+	--bgcolor: #15001a;
 	--textColor: #a399a8;
+	--hltextcolor: #d162b7;
 
 	/* "1" second duration */
 	--1s: 1ms;
@@ -91,6 +92,7 @@ h6 {
 }
 body {
 	background: var(--bgcolor);
+	font-family: var(--font-sans);
 }
 svg {
 	display: block;
@@ -127,6 +129,7 @@ svg {
 .scrollyContainer {
 	padding: 100vh 0;
 	position: relative;
+	z-index: 9999;
 }
 
 .visualContainer {
@@ -150,7 +153,7 @@ svg {
 	position: relative;
 	pointer-events: auto;
 	height: 100%;
-	padding: 50px 0 0px;
+	padding: 40vh 0 70vh;
 	/* border: 2px solid red; */
 	min-height: 100vh;
 }
@@ -164,23 +167,88 @@ svg {
 }
 
 .step .textContainer {
+	pointer-events: auto !important;
 	position: absolute;
-	background: black;
+	background: var(--bgcolor);
 	width: 600px;
 	max-width: 90%;
 	padding: 5px 14px 5px 14px;
-	top: 0%;
+	top: 50%;
 	font-size: 16.5px;
 	line-height: 1.5em;
-	transform: translate(-50%, 0%);
+	transform: translate(-50%, -50%);
 	color: white;
 	margin-left: 50%;
 }
-
+.step .textContainer a {
+	color: var(--hltextcolor) !important;
+}
 .step:first-child {
 	margin-top: 90vh;
 }
 
 .step:last-child {
 	margin-bottom: 50vh;
+}
+.step.hide {
+	display: none;
+}
+.step.longcopy {
+	width: 100%;
+	pointer-events: auto !important;
+	height: auto;
+	background: linear-gradient(0deg, transparent 0%, var(--bgcolor) 4%, var(--bgcolor) 95%, transparent 100%);
+	backdrop-filter: blur(0.5px);
+	padding: 20vh 0 2em;
+	box-sizing: border-box !important;
+	position: relative;
+	pointer-events: none;
+	min-height: 100vh;
+	max-width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.step.longcopy::after {
+	pointer-events: auto !important;
+	content: "";
+	display: block;
+	height: 20vh;
+	flex-shrink: 0;
+}
+.step.longcopy .textContainer {
+	pointer-events: auto !important;
+	position: relative;
+	top: auto;
+	transform: none;
+	margin: 0 auto;
+	background: transparent;
+	z-index: 3;
+}
+.step.longcopy:before {
+	pointer-events: auto !important;
+	content: "";
+	position: absolute;
+	height: 70%;
+	width: 100%;
+	display: block;
+	top: 15%;
+	left: 0px;
+	backdrop-filter: blur(2px);
+	z-index: 2;
+}
+.textContainer .smallText {
+	font-size: 14px;
+	opacity: 0.6;
+	line-height: 17px;
+	margin-top: 30px;
+	font-style: italic;
+}
+.methods {
+	display: block;
+	width: 90%;
+	max-width: 600px;
+	margin: 100px auto;
+	color: var(--textColor);
+	border-top: 1px solid var(--textColor);
 }
