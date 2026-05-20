@@ -89,6 +89,7 @@
 			: null
 	);
 	const zoomLabel = $derived(copy.story[stepIndex]?.zoom_label ?? null);
+	const zoomSprite = $derived(copy.story[stepIndex]?.zoom_sprite ?? null);
 
 	// --- Derive min/max directly from metricTranslations ---
 	function getMetricRange(metricName) {
@@ -556,7 +557,7 @@
 <div class="debug">
 	step: {value} | sort: {sortVar} (wave: {sortWave}, idx: {sortIdx}) | metric: {metric}
 	(wave: {wave}, idx: {metricIdx}) | min: {minMetric}, max: {maxMetric},
-	reverse: {metricReverse}
+	reverse: {metricReverse} | zoom_sprite: {zoomSprite}
 </div>
 
 <svelte:window bind:innerHeight />
@@ -584,6 +585,8 @@
 					clickedPersonId = id;
 				}}
 				{fastMode}
+				introMode={!metric && !sortVar}
+				{zoomSprite}
 			/>
 
 			<!-- {#if currentYear}

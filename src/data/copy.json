@@ -7,6 +7,7 @@
       "metric": "",
       "zoom_id": "524",
       "zoom_label": "",
+      "zoom_sprite": "",
       "addclass": "hide",
       "metric_reverse": "true",
       "text": ""
@@ -17,6 +18,7 @@
       "metric": "",
       "zoom_id": "524",
       "zoom_label": "",
+      "zoom_sprite": "",
       "metric_reverse": "true",
       "text": "Once upon a time, there was a boy named Robert—or at least that’s what we’ll call him."
     },
@@ -26,6 +28,7 @@
       "metric": "",
       "zoom_id": "524",
       "zoom_label": "",
+      "zoom_sprite": "meet",
       "metric_reverse": "true",
       "text": "In the 1960s, Robert went to college and met a girl. We’ll call her Linda."
     },
@@ -35,6 +38,7 @@
       "metric": "",
       "zoom_id": "524",
       "zoom_label": "",
+      "zoom_sprite": "date",
       "metric_reverse": "true",
       "text": "A few years later, during an unusually rainy season in January, they started dating."
     },
@@ -44,6 +48,7 @@
       "metric": "",
       "zoom_id": "524",
       "zoom_label": "",
+      "zoom_sprite": "married",
       "metric_reverse": "true",
       "text": "Then a few years after that, they got married."
     },
@@ -53,6 +58,7 @@
       "metric": "",
       "zoom_id": "524",
       "zoom_label": "",
+      "zoom_sprite": "kids",
       "metric_reverse": "true",
       "text": "Eventually they had two kids, bought a single-family home, and built successful careers."
     },
@@ -62,6 +68,7 @@
       "metric": "",
       "zoom_id": "524",
       "zoom_label": "",
+      "zoom_sprite": "thumbsup",
       "metric_reverse": "true",
       "text": "Decades later, in 2017, Robert was asked how his relationship is.\r\n\r\n\r\nHe said it was excellent."
     },
@@ -106,6 +113,7 @@
       "metric": "w1_partnership_status",
       "metric_reverse": "true",
       "addclass": "covid",
+      "zoom_sprite": "",
       "text": "But what happened to everyone else we met in 2017?",
       "zoom_id": "524",
       "zoom_label": ""
