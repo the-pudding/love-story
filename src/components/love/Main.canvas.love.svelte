@@ -75,7 +75,9 @@
 
 	// Sprite sheet constants
 	const zoomSpeed = 0.06;
-	const zoomLevel = 6;
+	const zoomLevel = 7;
+	const zoomIconMinPx = 160;   // min zoomed icon height in screen pixels
+	const zoomIconMaxPx = 200;  // max zoomed icon height in screen pixels
 	const spriteAnimSpeed = 1.2;  // frame advance multiplier (higher = faster animation)
 	const spriteWidthMin = 0.8;
 	const spriteWidthMax = 1.4;
@@ -227,12 +229,9 @@
 			const ps = state.personSize;
 			const isMe = this.id === state.zoomId;
 
-			const isSettled = this.distance < 4 && Math.abs(this.vel.x) + Math.abs(this.vel.y) < 1;
-
-			if (isMe && state.zoomSprite && isSettled) {
+			if (isMe && state.zoomSprite) {
 				const zoomSheet = sprites["00-intro1"];
 				if (zoomSheet) {
-					// Detect row change: start fading out current, then swap
 					if (this.displayedZoomSprite !== state.zoomSprite && !this.zoomSpriteFadingOut) {
 						if (this.displayedZoomSprite === null) {
 							this.displayedZoomSprite = state.zoomSprite;
@@ -256,14 +255,16 @@
 					this.frameCount += 0.1 * spriteAnimSpeed;
 					const drawSize = ps * 2;
 					p.tint(255, this.zoomSpriteAlpha);
-					p.image(zoomSheet, this.loc.x - drawSize / 2, this.loc.y - drawSize, drawSize, drawSize,
+					p.image(zoomSheet, -drawSize / 2, -drawSize, drawSize, drawSize,
 						frameIdx * zoomSpriteWidth, rowIdx * zoomSpriteHeight, zoomSpriteWidth, zoomSpriteHeight);
 					p.noTint();
 				}
 				return;
 			}
 
-			// Reset fade state when not in settled zoom_sprite mode
+			if (this.displayedZoomSprite !== null) {
+				this.frameCount = 0;
+			}
 			this.zoomSpriteAlpha = 0;
 			this.displayedZoomSprite = null;
 			this.zoomSpriteFadingOut = false;
@@ -271,7 +272,7 @@
 			const color = state.personColors.get(this.id) || "#e2e8f0";
 
 			const colorName = hexToColorName[color] ?? "neutral";
-			const spriteKey = (isMe && state.zoomSprite) ? "00-intro" : state.introMode ? "00-intro" : this.race + "-" + colorName;
+			const spriteKey = state.introMode ? "00-intro" : this.race + "-" + colorName;
 			const spriteSheet = sprites[spriteKey];
 			if (!spriteSheet) return;
 
@@ -291,6 +292,7 @@
 			}
 
 			const rowIndex = spriteRowLabels.indexOf(rowLabel);
+			if (rowIndex === -1) return;
 			const frameIdx = Math.floor(this.frameCount) % spriteCols;
 			const sx = frameIdx * spriteWidth;
 			const sy = rowIndex * spriteHeight + 2;
@@ -364,7 +366,12 @@
 				);
 			}
 
-			targetZoom = state.zoomId !== null ? zoomLevel : 1;
+			if (state.zoomId !== null) {
+				const iconPx = p.constrain(state.personSize * 2 * zoomLevel, zoomIconMinPx, zoomIconMaxPx);
+				targetZoom = iconPx / (state.personSize * 2);
+			} else {
+				targetZoom = 1;
+			}
 			zoom = p.lerp(zoom, targetZoom, zoomSpeed);
 			state.zoom = zoom;
 
@@ -379,7 +386,7 @@
 			}
 
 			if (state.labels?.length > 0) {
-				const fontSize = Math.max(10, state.personSize * 1.1);
+				const fontSize = Math.max(14, Math.min(18, state.personSize * 1.1));
 				if (atlasFont) p.textFont(atlasFont);
 				p.textSize(fontSize);
 				p.textAlign(p.LEFT, p.TOP);
@@ -387,7 +394,7 @@
 				p.noStroke();
 				for (const label of state.labels) {
 					const lx = label.x + state.padding - state.w / 2;
-					const ly = label.y + state.topPadding - state.h / 2;
+					const ly = label.y + state.topPadding - state.h / 2 - 8;
 					p.text(label.text, lx, ly);
 				}
 			}

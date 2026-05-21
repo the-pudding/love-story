@@ -17,6 +17,11 @@
         flex-direction: row;
         gap: 10px;
     }
+    @media (max-width: 420px) {
+        .legend {
+            margin-top: 10px;
+        }
+    }
     
     .legend-row {
         display: flex;
@@ -33,7 +38,16 @@
     .label {
         font-family: var(--font-mono);
         font-size: 15px;
+        line-height: 15px;
         color: var(--textColor);
         letter-spacing: -0.03em;
     }
+
+    @media (max-width: 620px) {
+        .label {
+            font-size: 13px;
+            line-height: 13px;
+        }
+    }
+    
 </style>

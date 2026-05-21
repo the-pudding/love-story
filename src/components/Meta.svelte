@@ -1,9 +1,9 @@
 <script>
 	let {
-		title = "Title TK",
-		description = "Description TK",
-		url = "https://pudding.cool",
-		keywords = "",
+		title = "A love story",
+		description = "Tracking 1,000+ people through the ups and downs of their relationships",
+		url = "https://pudding.cool/2026/06/love-story",
+		keywords = "modern love story, changing marriage expectations, why are more people single, egalitarian relationships, traditional gender roles, all-or-nothing marriage, what we expect from love, are relationships getting worse, rewriting the love story, dating and gender roles, history of american marriage, relationship quality data, how couples meet and stay together, Stanford HCMST, individualism and love, declining marriage, modern relationships, do relationships make us happy",
 		preloadFont = []
 	} = $props();
 </script>

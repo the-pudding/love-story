@@ -4,8 +4,6 @@
 	import Text from "$components/love/Text.love.svelte";
 	import Legend from "$components/love/Legend.love.svelte";
 	import Modal from "$components/love/Modal.love.svelte";
-	import { varDescriptions } from "$utils/varDescriptions.js";
-
 	import panelData from "$data/panel_all3waves.json";
 	import copy from "$data/copy.json";
 	import metricTranslations from "$data/metricTranslations.json";
@@ -18,9 +16,12 @@
 	let containerHeight = $state(0);
 
 	// `value` is the step index output by Scrolly (0, 1, 2, 3...).
-	// Null/undefined between steps defaults to step 0.
 	let value = $state(undefined);
-	const stepIndex = $derived(value ?? 0);
+	let lastStep = $state(0);
+	$effect(() => {
+		if (value !== undefined) lastStep = value;
+	});
+	const stepIndex = $derived(value ?? lastStep);
 
 	// Shared padding constants
 	const canvasPadding = 20;
@@ -28,15 +29,17 @@
 	const chartTitleHeight = 22;
 
 	const chartTitle = $derived(copy.story[stepIndex]?.chart_title ?? null);
-	const legendHeight = $derived(baseLegendHeight + (chartTitle ? chartTitleHeight : 0));
+	const legendHeight = $derived(
+		baseLegendHeight + (chartTitle ? chartTitleHeight : 0)
+	);
 
 	// groupPadding shrinks on narrow screens
-	const groupPadding = $derived(containerWidth < 500 ? 12 : 30);
+	const groupPadding = $derived(containerWidth < 500 ? 8 : 20);
 	const labelHeight = 30;
 
 	// personSize is stable: always reserve space for MAX_GROUPS so icons
 	// don't resize as the user scrolls between steps.
-	const MAX_GROUPS = 6;
+	const MAX_GROUPS = 4;
 	const personSize = $derived.by(() => {
 		if (!containerWidth || !containerHeight || !data.length) return 10;
 		const availW = containerWidth - canvasPadding * 2;
@@ -65,24 +68,56 @@
 		return lookup[wave].indexOf(varName);
 	}
 
-	let debugSortVar = $state("");
-	let debugMetric = $state("");
+	// ── Explore mode options ─────────────────────────────────────────────────
+	// Edit these arrays to control what appears in the user-facing dropdowns.
+	const EXPLORE_SORT_OPTIONS = [
+		{ value: "w1_partnership_status", label: "Partnership status (2017)" },
+		{ value: "w2_partner_type", label: "Partnership status (2020)" },
+		{ value: "w3_partner_type", label: "Partnership status (2022)" },
+		{ value: "w1_ppgender", label: "Gender" },
+		{ value: "w1_ppage", label: "Age group" },
+		{ value: "w1_ppincimp", label: "Household income" },
+		{ value: "w1_ppethm", label: "Race / ethnicity" }
+	];
+	const EXPLORE_METRIC_OPTIONS = [
+		{ value: "w1_q34", label: "Relationship quality (2017)" },
+		{ value: "w2_rel_qual_combo", label: "Relationship quality (2020)" },
+		{ value: "w3_rel_qual", label: "Relationship quality (2022)" },
+		{
+			value: "w2_coronavirus_effect_combo",
+			label: "COVID effect on relationship (2020)"
+		},
+		{
+			value: "w3_coronavirus_effect_combo",
+			label: "COVID effect on relationship (2022)"
+		},
+		{ value: "w2_relationship_end", label: "Relationship end, 2017 to 2020" },
+		{ value: "w3_relationship_end_combo", label: "Relationship end, 2020 to 2022" }
+	];
+	// ─────────────────────────────────────────────────────────────────────────
+
+	const isExplore = $derived(copy.story[stepIndex]?.addclass === "explore");
+
+	let exploreSortVar = $state(EXPLORE_SORT_OPTIONS[0].value);
+	let exploreMetric = $state(EXPLORE_METRIC_OPTIONS[0].value);
 
 	// All story-driven state reads from stepIndex, not value
-	const sortVar = $derived(debugSortVar || copy.story[stepIndex]?.sort_var);
+	const sortVar = $derived(
+		isExplore ? exploreSortVar : copy.story[stepIndex]?.sort_var
+	);
 	const sortWave = $derived(getVarWave(sortVar));
 	const sortIdx = $derived(getVarIndex(sortWave, sortVar));
 
-	const metric = $derived(debugMetric || copy.story[stepIndex]?.metric);
+	const metric = $derived(
+		isExplore ? exploreMetric : copy.story[stepIndex]?.metric
+	);
 	const wave = $derived(getVarWave(metric));
 	const metricIdx = $derived(getVarIndex(wave, metric));
 
 	const metricReverse = $derived(
 		copy.story[stepIndex]?.metric_reverse === "true"
 	);
-	const iconReverse = $derived(
-		copy.story[stepIndex]?.icon_reverse === "true"
-	);
+	const iconReverse = $derived(copy.story[stepIndex]?.icon_reverse === "true");
 	const zoomId = $derived(
 		copy.story[stepIndex]?.zoom_id !== undefined
 			? Number(copy.story[stepIndex].zoom_id)
@@ -124,7 +159,9 @@
 		if (!entry || Array.isArray(entry)) return null;
 		const firstVal = Object.values(entry)[0];
 		if (!Array.isArray(firstVal)) return null;
-		const match = Object.entries(entry).find(([k]) => norm(k) === norm(rawLabel));
+		const match = Object.entries(entry).find(
+			([k]) => norm(k) === norm(rawLabel)
+		);
 		return match ? match[1][0] : null;
 	}
 
@@ -167,9 +204,13 @@
 			if (Array.isArray(entry)) return entry.map(resolveColor);
 			const firstVal = Object.values(entry)[0];
 			if (Array.isArray(firstVal)) {
-				return Object.fromEntries(Object.entries(entry).map(([k, v]) => [k, resolveColor(v[1])]));
+				return Object.fromEntries(
+					Object.entries(entry).map(([k, v]) => [k, resolveColor(v[1])])
+				);
 			}
-			return Object.fromEntries(Object.entries(entry).map(([k, v]) => [k, resolveColor(v)]));
+			return Object.fromEntries(
+				Object.entries(entry).map(([k, v]) => [k, resolveColor(v)])
+			);
 		}
 
 		// 2. Fall back to per-step colors field (legacy)
@@ -319,9 +360,11 @@
 			});
 		}
 
-		const sortOrder = metricTranslations[sortVar]
-			? Object.keys(metricTranslations[sortVar])
-			: [];
+		const sortOrder = chartConfig.colors[sortVar]
+			? Object.keys(chartConfig.colors[sortVar])
+			: metricTranslations[sortVar]
+				? Object.keys(metricTranslations[sortVar])
+				: [];
 
 		return [...data].sort((a, b) => {
 			const rawA = a[sortWave]?.[sortIdx];
@@ -550,15 +593,13 @@
 
 	const waveYear = { w1: "2017", w2: "2020", w3: "2022" };
 	const currentYear = $derived(waveYear[wave] ?? null);
-	let debugFast = $state(false);
-	const fastMode = $derived(!!(debugSortVar || debugMetric || debugFast));
 </script>
 
-<div class="debug">
+<!-- <div class="debug">
 	step: {value} | sort: {sortVar} (wave: {sortWave}, idx: {sortIdx}) | metric: {metric}
 	(wave: {wave}, idx: {metricIdx}) | min: {minMetric}, max: {maxMetric},
 	reverse: {metricReverse} | zoom_sprite: {zoomSprite}
-</div>
+</div> -->
 
 <svelte:window bind:innerHeight />
 
@@ -584,7 +625,6 @@
 				onpersonclick={(id) => {
 					clickedPersonId = id;
 				}}
-				{fastMode}
 				introMode={!metric && !sortVar}
 				{zoomSprite}
 			/>
@@ -601,6 +641,27 @@
 					<Legend items={legendData} />
 				</div>
 			{/if}
+		{/if}
+
+		{#if isExplore}
+			<div class="exploreControls">
+				<label class="exploreLabel">
+					<span class="exploreHed">group by</span>
+					<select bind:value={exploreSortVar}>
+						{#each EXPLORE_SORT_OPTIONS as opt}
+							<option value={opt.value}>{opt.label}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="exploreLabel">
+					<span class="exploreHed">color by</span>
+					<select bind:value={exploreMetric}>
+						{#each EXPLORE_METRIC_OPTIONS as opt}
+							<option value={opt.value}>{opt.label}</option>
+						{/each}
+					</select>
+				</label>
+			</div>
 		{/if}
 	</div>
 	<div class="scrollyContainer">
@@ -637,46 +698,6 @@
 	}}
 />
 
-<div class="debugControls">
-	<button
-		class="fastBtn"
-		class:active={debugFast}
-		onclick={() => (debugFast = !debugFast)}
-	>
-		⚡ fast mode
-	</button>
-	<label>
-		sort_var
-		<select bind:value={debugSortVar}>
-			<option value="">— story</option>
-			{#each Object.entries(panelData.lookup) as [waveKey, vars]}
-				<optgroup label={waveKey}>
-					{#each vars as v}
-						{#if v}
-							<option value={v}>{varDescriptions[v] ?? v}</option>
-						{/if}
-					{/each}
-				</optgroup>
-			{/each}
-		</select>
-	</label>
-	<label>
-		metric
-		<select bind:value={debugMetric}>
-			<option value="">— story</option>
-			{#each Object.entries(panelData.lookup) as [waveKey, vars]}
-				<optgroup label={waveKey}>
-					{#each vars as v}
-						{#if v}
-							<option value={v}>{varDescriptions[v] ?? v}</option>
-						{/if}
-					{/each}
-				</optgroup>
-			{/each}
-		</select>
-	</label>
-</div>
-
 <style>
 	.headlineContainer {
 		width: 90%;
@@ -698,53 +719,74 @@
 	.headlineContainer .byline {
 		font-size: 15px;
 		color: #b58ab1;
-		margin-top:20px;
+		margin-top: 20px;
 	}
 	.headlineContainer .byline a {
 		color: #ff70d4;
 	}
-	.debugControls {
-		position: fixed;
-		bottom: 16px;
-		right: 16px;
-		z-index: 9999;
+	.exploreControls {
+		/* width: 600px; */
+		max-width: 98%;
+		position: absolute;
+		bottom: 20px;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: row;
+		gap: 16px;
+		background: rgba(0, 0, 0, 0.7);
+		padding: 12px 16px;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		z-index: 10000;
+	}
+	@media (max-width: 620px) {
+		.exploreControls {
+			flex-direction: column;
+			gap: 12px;
+			width: calc(100% - 40px);
+			left: 20px;
+			transform: none;
+		}
+		.exploreControls select {
+			min-width: 0;
+			width: 100%;
+		}
+	}
+	.exploreLabel {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-		background: rgba(0, 0, 0, 0.75);
-		padding: 8px 10px;
-		border-radius: 6px;
+		gap: 4px;
+	}
+	.exploreHed {
+		font-family: var(--font-mono);
 		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: rgba(255, 255, 255, 0.5);
+	}
+	.exploreControls select {
+		font-family: var(--font-mono);
+		font-size: 12px;
+		background-color: transparent;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='3' viewBox='0 0 4 3'%3E%3Cpath d='M0 0l2 3 2-3z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 8px center;
+		appearance: none;
+		-webkit-appearance: none;
 		color: white;
-	}
-	.debugControls label {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-	}
-	.fastBtn {
-		font-size: 13px;
-		font-weight: bold;
-		padding: 6px 12px;
-		border-radius: 4px;
-		border: 2px solid #555;
-		background: #222;
-		color: #aaa;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		padding: 4px 28px 4px 10px;
 		cursor: pointer;
-		letter-spacing: 0.02em;
+		outline: none;
+		min-width: 200px;
+		border-radius: 0px !important;
 	}
-	.fastBtn.active {
-		background: #f59e0b;
-		border-color: #f59e0b;
-		color: black;
+	.exploreControls select:focus {
+		/* border: 1px solid rgba(255, 255, 255, 1); */
 	}
-	.debugControls select {
-		font-size: 11px;
-		background: #222;
+	.exploreControls option {
+		background: #1a1a1a;
 		color: white;
-		border: 1px solid #555;
-		border-radius: 3px;
-		padding: 2px 4px;
 	}
 
 	.yearLabel {
@@ -766,6 +808,6 @@
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 		line-height: 1;
-		margin-bottom: 4px;
+		margin-bottom: 9px;
 	}
 </style>

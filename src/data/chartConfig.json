@@ -41,28 +41,28 @@
       "no report of breakup or partner death": ["Still together", "lavender"]
     },
     "w1_q34": {
-      "Single": ["Single", "neutral"],
       "Excellent": ["Excellent", "pink"],
       "Good": ["Good", "lavender"],
       "Fair": ["Fair", "purple"],
       "Poor": ["Poor", "magenta"],
-      "Very Poor": ["Very Poor", "peach"]
+      "Very Poor": ["Very Poor", "peach"],
+      "Single": ["Single", "neutral"]
     },
     "w2_rel_qual_combo": {
-      "Single": ["Single", "neutral"],
       "Excellent": ["Excellent", "pink"],
       "Good": ["Good", "lavender"],
       "Fair": ["Fair", "purple"],
       "Poor": ["Poor", "magenta"],
-      "Very Poor": ["Very Poor", "peach"]
+      "Very Poor": ["Very Poor", "peach"],
+      "Single": ["Single", "neutral"]
     },
     "w3_rel_qual": {
-      "Single": ["Single", "neutral"],
       "Excellent": ["Excellent", "pink"],
       "Good": ["Good", "lavender"],
       "Fair": ["Fair", "purple"],
       "Poor": ["Poor", "magenta"],
-      "Very Poor": ["Very Poor", "peach"]
+      "Very Poor": ["Very Poor", "peach"],
+      "Single": ["Single", "neutral"]
     },
     "qual_diff_w1_w2_simple": {
       "Worse": ["Worse", "peach"],
@@ -71,20 +71,20 @@
       "Single": ["Single", "neutral"]
     },
     "qual_diff_w1_w3_simple": {
-        "Worse": ["Worse", "peach"],
+      "Worse": ["Worse", "peach"],
       "No change": ["No change", "lavender"],
       "Better": ["Better", "pink"],
       "Single": ["Single", "neutral"]
     },
     "w2_Q32_simple": {
-      "Single": ["Single", "neutral"],
       "No": ["No", "lavender"],
-      "Yes": ["Yes", "pink"]
+      "Yes": ["Yes", "pink"],
+      "Single": ["Single", "neutral"]
     },
     "w3_Q32_simple": {
-      "Single": ["Single", "neutral"],
       "No": ["Did not meet online", "lavender"],
-      "Yes": ["Met online", "pink"]
+      "Yes": ["Met online", "pink"],
+      "Single": ["Single", "neutral"]
     },
     "qual_diff_w1_w2": {
       "Much worse": ["Much worse", "purple"],
@@ -98,40 +98,40 @@
       "Much better": ["Much better", "peach"]
     },
     "w1_rel_qual_bucket": {
-      "Single": ["Single", "neutral2"],
       "Excellent": ["Excellent", "pink"],
       "Good": ["Good", "purple"],
-      "Fair or worse": ["Fair or worse", "peach"]
+      "Fair or worse": ["Fair or worse", "peach"],
+      "Single": ["Single", "neutral2"]
     },
     "w2_rel_qual_bucket": {
-      "Single": ["Single", "neutral2"],
-      "Excellent": ["Excellent", "pink"],
+     "Excellent": ["Excellent", "pink"],
       "Good": ["Good", "purple"],
-      "Fair or worse": ["Fair or worse", "peach"]
+      "Fair or worse": ["Fair or worse", "peach"],
+      "Single": ["Single", "neutral2"]
     },
     "w3_rel_qual_bucket": {
-      "Single": ["Single", "neutral2"],
       "Excellent": ["Excellent", "pink"],
       "Good": ["Good", "purple"],
-      "Fair or worse": ["Fair or worse", "peach"]
+      "Fair or worse": ["Fair or worse", "peach"],
+      "Single": ["Single", "neutral2"]
     },
     "w2_fight_bucket": {
-      "Single": ["Single", "neutral2"],
       "0": ["No fights", "purple"],
       "1-3": ["1–3 fights", "peach"],
-      "4+": ["4+ fights", "yellow"]
+      "4+": ["4+ fights", "yellow"],
+      "Single": ["Single", "neutral2"]
     },
     "w2_coronavirus_effect_combo": {
-      "Single": ["Single", "neutral2"],
       "better rel than before": ["Better", "pink"],
       "no change": ["No change", "lavender"],
-      "worse rel than before": ["Worse", "magenta"]
+      "worse rel than before": ["Worse", "magenta"],
+      "Single": ["Single", "neutral2"]
     },
     "w3_coronavirus_effect_combo": {
-      "Single": ["Single", "neutral2"],
       "Our relationship is better than before": ["Better", "pink"],
       "No change": ["No change", "lavender"],
-      "Our relationship is worse than before": ["Worse", "magenta"]
+      "Our relationship is worse than before": ["Worse", "magenta"],
+      "Single": ["Single", "neutral2"]
     },
     "w3_otherdate": {
       "In a relationship": ["In a relationship", "lavender"],
@@ -155,10 +155,10 @@
       "65+": ["65+", "neutral2"]
     },
     "w3_fight_bucket": {
-      "Single": ["Single", "neutral2"],
       "0": ["No fights", "purple"],
       "1-3": ["1–3 fights", "peach"],
-      "4+": ["4+ fights", "yellow"]
+      "4+": ["4+ fights", "yellow"],
+      "Single": ["Single", "neutral2"]
     },
     "w3_relationship_duration_bucket": {
       "0–5": ["0–5 yrs", "pink"],

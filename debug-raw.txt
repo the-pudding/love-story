@@ -1,0 +1,747 @@
+Tab 1
+hed: A love story
+
+
+[story]
+chart_title:
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+zoom_sprite:
+addclass: hide
+metric_reverse: true
+text:
+:end
+________________
+
+
+chart_title:
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+zoom_sprite:
+metric_reverse: true
+text:
+Once upon a time, there was a boy named Robert—or at least that’s what we’ll call him.
+:end
+________________
+
+
+chart_title:
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+zoom_sprite: meet
+metric_reverse: true
+text:
+In the 1960s, Robert went to college and met a girl. We’ll call her Linda. 
+:end
+________________
+
+
+chart_title:
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+zoom_sprite: date
+metric_reverse: true
+text:
+A few years later, during an unusually rainy season in January, they started dating.
+:end
+________________
+
+
+chart_title:
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+zoom_sprite: married
+metric_reverse: true
+text:
+Then a few years after that, they got married.
+:end
+________________
+
+
+chart_title:
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+zoom_sprite: kids
+metric_reverse: true
+text:
+Eventually they had two kids, bought a single-family home, and built successful careers. 
+:end
+________________
+
+
+chart_title:
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+zoom_sprite: thumbsup
+metric_reverse: true
+text:
+Decades later, in 2017, Robert was asked how his relationship is.
+
+
+He said it was excellent.
+:end
+________________
+
+
+chart_title: Partnership status, 2017
+sort_var: 
+metric: w1_partnership_status
+metric_reverse: true
+text:
+Robert is one of the thousands of people Stanford University researchers have been [tracking](https://data.stanford.edu/hcmst2017) to understand how couples meet, how they separate, and what their relationships is like.
+
+
+But it’s 2017, so a global pandemic is coming soon. Relationships will be strained. Single people will have to reinvent dating.
+
+
+It will be a profound test of what we expect of partnerships in the modern day. 
+
+
+<div class=smallText>This piece only visualizes people who participated in every wave of this survey.</div>
+:end
+________________
+
+
+chart_title: Quality of relationship, 2017
+sort_var: w1_partnership_status
+metric: w1_rel_qual_bucket
+metric_reverse: true
+text:
+For now, most partnered people say their relationships are quite good.
+:end
+________________
+
+
+chart_title: Quality of relationship, 2017
+sort_var: w1_ppgender
+metric: w1_rel_qual_bucket
+metric_reverse: true
+text:
+Men are slightly more likely to say their relationship is excellent.
+
+
+>> Chart | Data
+:end
+________________
+
+
+chart_title: Quality of relationship, 2017
+sort_var: w1_ppincimp
+metric: w1_rel_qual_bucket
+metric_reverse: true
+text:
+People with more money tend to report better relationships—partially because they have more time and resources to devote to their partners.
+:end
+________________
+
+
+chart_title: Quality of relationship, 2017
+sort_var: w1_ppage
+metric: w1_rel_qual_bucket
+metric_reverse: true
+text:
+The other factor is that older people tend to have more money, and they’ve had more time to find and develop high-quality relationships. 
+
+
+But there’s a deeper story in the lower quality of young people’s relationships. 
+:end
+________________
+
+
+chart_title: Quality of relationship, 2017
+sort_var: w1_ppage
+metric: w1_rel_qual_bucket
+metric_reverse: true
+addclass: longcopy
+zoom_sprite:
+text:
+Over the last few decades, we’ve seen some concerning trends in American relationships. 
+
+
+More people report being unsatisfied with their marriage.
+
+
+>> Marriage satisfaction - Data
+
+
+And the dynamics in those relationships have shifted in worrying ways.
+
+
+Researchers studied how relationships have changed from 1987 to 2013. They found that in both [marriages](https://pubmed.ncbi.nlm.nih.gov/36683860/) and [cohabitating partnerships](https://link.springer.com/article/10.1007/s11113-025-09982-y), couples report lower levels of fairness and higher levels of disagreement. Most concerning is that they also reported lower levels of interaction, [possibly](https://www.theatlantic.com/health/archive/2017/09/we-expect-way-too-much-from-our-romantic-partners/541353/) because many Americans are working longer hours which leaves less time for their partnership. 
+
+
+>> Charts - Data
+
+
+Given these circumstances, some researchers suspected that a societal disruption could expose the fractures in our relationships—eroding the quality of our partnerships, and even breaking them. This is called [stress theory](https://pubmed.ncbi.nlm.nih.gov/7644604/), which argues that these stressors actually use up the very energy we need to support our partners through it. This is especially true of more [chronic stressors](https://www.sciencedirect.com/science/article/abs/pii/S2352250X16300690), like financial strain and long-term illness, which constantly sip away at the emotional capacity we need to care for both a relationship and our own well-being.
+
+
+But if couples can successfully navigate these challenges, researchers have found that it brings couples closer together—a framework called [resilience theory](https://onlinelibrary.wiley.com/doi/10.1111/j.1545-5300.2003.00001.x). They are able to build a shared meaning of the threat, come up with a plan, and rely on each other to weather the events.
+:end
+________________
+
+
+sort_var: 
+metric: 
+addclass: covid
+text:
+2020. A global pandemic begins.
+:end
+________________
+
+
+sort_var:
+metric:
+zoom_id: 524
+zoom_label:
+metric_reverse: true
+text:
+Within the confines of their locked down home, Robert and Linda have agreed that they should socially distance and wear masks in public.
+:end
+________________
+
+
+sort_var:
+metric: w2_fight_bucket
+zoom_id: 524
+zoom_label:
+metric_reverse: true
+text:
+They haven’t fought much during lockdown, unlike some couples.
+:end
+________________
+
+
+sort_var:
+metric: w2_rel_qual_bucket
+zoom_id: 524
+zoom_label:
+metric_reverse: true
+text:
+In fact, Robert says his relationship is still excellent—just like before.
+
+
+Not a huge surprise, given that they’ve been together for more than 50 years!
+:end
+________________
+
+
+sort_var: w1_partnership_status
+metric: w1_partnership_status
+metric_reverse: true
+text:
+But what happened to everyone else we met in 2017?
+:end
+________________
+
+
+Wave 2
+chart_title: What happened to relationships from 2017 to 2020
+sort_var: w1_partnership_status
+metric: w2_relationship_end
+metric_reverse: true
+text:
+Half a year into the pandemic, there were a lot of breakups among people who were partnered but not married; a handful of divorces; and sadly several partners died.
+:end
+________________
+
+
+chart_title: Partnership status, 2020
+sort_var: w2_partner_type
+metric: w2_partner_type
+metric_reverse: true
+text:
+In turn, the pandemic created more single people.
+:end
+________________
+
+
+chart_title: How often couples fought in past week, 2020
+sort_var: w2_partner_type
+metric: w2_fight_bucket
+metric_reverse: true
+text:
+But even among people who stayed together, many said they fought with their partner multiple times in the past week.
+:end
+________________
+
+
+chart_title: Relationship quality in 2017
+sort_var: w1_rel_qual_bucket
+metric: w1_rel_qual_bucket
+metric_reverse: true
+text:
+If we look at how people assessed their relationships in 2017…
+:end
+________________
+
+
+chart_title: How relationship quality changes from 2017 to 2020
+sort_var: w1_rel_qual_bucket
+metric: qual_diff_w1_w2_simple
+metric_reverse: true
+text:
+… we can see that by fall 2020, a lot of people rated their relationship worse than it was before.
+:end
+________________
+
+
+chart_title: How relationship quality changes from 2017 to 2020
+sort_var: w1_rel_qual_bucket
+metric: qual_diff_w1_w2_simple
+metric_reverse: true
+addclass: longcopy
+text:
+Early in our lives, love stories are chiseled into our minds. They hypnotize us with scripts of what it should look like—and feel like—to fall in love. We see montages of dates, proposals, and ultimately a wedding. And then we see glimpses of what we should expect in happy marriages.
+
+
+Those stories are shaped by the societal expectations we have of our relationships, but those expectations have shifted drastically over time. [Historians](https://www.jstor.org/stable/3600162) often break down modern conceptions of American marriage into three eras. 
+
+
+>> Three eras
+
+
+**Before the 1850s**, marriage was about survival. Partnerships were about ensuring financial success, while continuing your family line. It certainly wasn’t about a strong emotional connection with another person.
+
+
+**From the 1850s to 1960s**, marriage became more about companionship. Spouses were friends and lovers. But the success of a marriage was often defined by how well we filled specific roles—as breadwinners, homemakers, parents. These expectations were so dominant that marriage was essentially mandatory.
+
+
+>> Charts on marriage rates + median age of marriage
+
+
+But during this era, something was brewing under the surface. Sociologist Francesca Cancian analyzed the kind of marriage advice popular magazines offered during this period, and found that these rigid and traditional expectations eroded and were replaced by expectations that allowed individuals to shape their marriage based on their own preferences. 
+
+
+In other words, people rebelled against the stories.
+
+>> Cancian data | Data
+
+
+Sociologist Eli J. Finkel [argues](https://www.nytimes.com/2014/02/15/opinion/sunday/the-all-or-nothing-marriage.html) that our evolving expectations of marriage have followed Maslow’s hierarchy of needs. Initially we chose our relationships based on survival; then we wanted to feel loved; and then we wanted relationships that helped us be the people we want to be.
+
+
+>> Maslow: Psychological well being/safety, belonging/love, self-actualization
+
+
+**Since the 1960s**, marriage has been about how it can support our individual happiness and personal growth. This era has been defined by partners negotiating a relationship that works for both people, in all aspects of their lives. 
+
+
+That said, the classic love story still captures our imaginations. So that means we want relationships that provide security, passion, intellectual stimulation, and personal growth. We expect more from our partners than ever before—an “all-or-nothing” arrangement, Finkel [says](https://www.amazon.com/All-Nothing-Marriage-Best-Marriages/dp/052595516X).
+
+
+When our relationships can’t meet our high and sometimes rigid expectations, we’re unsatisfied.
+
+
+But when our relationships live up to these expectations—especially in the face of an external threat—we’re happier than ever.
+:end
+________________
+
+
+chart_title: How relationship quality, 2020
+sort_var: w2_rel_qual_bucket
+metric: w2_rel_qual_bucket
+metric_reverse: true
+text:
+Here is how people rated the quality of their relationships in 2020. When asked how the pandemic changed their relationship…
+:end
+________________
+
+
+chart_title: How the pandemic changed their relationship, 2020
+sort_var: w2_rel_qual_bucket
+metric: w2_coronavirus_effect_combo
+metric_reverse: true
+text:
+… a large chunk of people who were in excellent relationships said it actually improved their relationship even more! In other words, they had hit the top of the relationship quality scale, and just needed a way to express improvement.
+:end
+________________
+
+
+Wave 3
+chart_title: How the pandemic changed their relationship, 2022
+sort_var: w3_rel_qual_bucket
+metric: w3_coronavirus_effect_combo
+metric_reverse: true
+text:
+And two years later, after the pandemic, even more people in excellent relationships said that the pandemic improved their partnership.
+
+
+>> Chart
+:end
+________________
+
+
+chart_title: How the pandemic changed their relationship, 2022
+sort_var: w3_rel_qual_bucket
+metric: w3_coronavirus_effect_combo
+metric_reverse: true
+text:
+Researchers [found](https://web.stanford.edu/~mrosenfe/Rosenfeld_Hausen_Resilience_Stress_Soc_Sci_2023.pdf) that the pandemic allowed couples to spend more time together—something many of them lacked because of commuting and work. Furthermore, they found that functional couples engaged in “mutual meaning making.” They aligned their perspectives on the virus’s risk, and agreed on how they would behave in response to it.
+
+
+>> Chart
+:end
+________________
+sort_var:
+metric: w3_coronavirus_effect_combo
+zoom_id: 524
+addclass: hide
+metric_reverse: true
+text:
+Robert and Linda are still doing well. They’ve both decided to get the Covid vaccine and the boosters—part of their shared understanding of the threat.
+:end
+________________
+
+
+sort_var:
+metric: w3_coronavirus_effect_combo
+zoom_id: 524
+addclass: hide
+metric_reverse: true
+text:
+Sure, they’ve fought a bit in the past week—but that hasn’t undermined their lifelong partnership. 
+
+
+Robert still says they’re doing excellent.
+:end
+________________
+
+
+chart_title: Partnership status, 2022
+sort_var: w3_partner_type
+metric: w3_partner_type
+metric_reverse: true
+text:
+On the opposite end of the spectrum are single people. And the end of pandemic lockdowns has meant that people can start dating again.
+
+
+>> Chart
+:end
+________________
+
+
+Single people
+chart_title: Partnership status, 2022
+sort_var: w3_partner_type
+metric: w3_partner_type
+metric_reverse: true
+text:
+But even years after the pandemic, there are more single people than before.
+
+
+>> Chart | Data
+:end
+________________
+
+
+chart_title: Met someone for romantic reasons, 2022
+sort_var: w3_partner_type
+metric: w3_otherdate
+metric_reverse: true
+text:
+Only a small portion of people have met someone for a date, romance, or sex.
+
+
+(Some people in relationships also said they did this, too.)
+:end
+________________
+
+
+chart_title: Met partner online, 2022
+sort_var: w3_relationship_duration_bucket
+metric: w3_Q32_simple
+metric_reverse: false
+icon_reverse: true
+text:
+Perhaps one big reason is that a lot of dating is now done through apps—and these days people [really don’t enjoy](https://www.theatlantic.com/technology/archive/2024/04/dating-apps-are-starting-crack/678022/) that experience.
+
+
+>> Chart | Data
+
+
+But I think there’s something else happening under the surface.
+:end
+________________
+
+
+chart_title: 
+sort_var: w3_relationship_duration_bucket
+metric: w3_Q32_simple
+metric_reverse: true
+addclass: longcopy
+text:
+It’s tempting to think that we’ve taken a wrong turn somewhere along the line. The average quality of relationships is down. More people are single. And young people [don’t](https://www.rasmussenreports.com/public_content/lifestyle/general_lifestyle/june_2025/dating_37_of_young_singles_aren_t_interested) even want to date.
+
+
+Some argue this is the inevitable result of a self-centered culture—one that ignores traditional values in favor of personal happiness. And they aren’t entirely wrong: Those traditions provided clear and rigid expectations and a comfortable script for many people to follow. It created a society where almost everyone got married. Those scripts were repeated in our favorite love stories, and they captured our hearts and minds. If that love story is so beautiful, how could we want anything else?
+
+
+Yet this story doesn’t work for many people. Women are expected to perform most of the domestic labor, while being submissive and deferential to their husbands. Men are expected to be providers and protectors, even when what the world needs is nurturers and partners. This means that in our most intimate relationship, we can’t even be yourselves; we have to be boy and girl, man and woman, husband and wife.
+
+
+That’s why young people of the past few generations have said they want something else—an egalitarian relationship that is less based on traditional gender roles, and more about what we need and want as individuals. After all, we live in an era where we don’t need to marry for economic gain, to preserve social class, or for our family legacies. We don't need friends or family to introduce us to potential partners. We can choose our relationships for ourselves!
+
+
+Still, the traditional love story is powerful. 
+
+
+In every generation, researchers have studied how people act in the courting process and in relationships. They’ve found that, despite the huge economic and technologic changes, many people still perform their traditional gender roles in relationships—even if they want to live another story.
+:end
+________________
+
+
+chart_title: Quality of relationship, 2022
+sort_var: w3_partner_type
+metric: w3_rel_qual_bucket
+metric_reverse: true
+text:
+When we look at these charts, we often look at the relationships that aren’t working—the ones that are failing, or have failed. But I want to point out something else.
+:end
+________________
+
+
+chart_title:  Quality of relationship, 2022
+sort_var: w3_rel_qual_bucket
+metric: w3_rel_qual_bucket
+metric_reverse: true
+text:
+Most people rate their relationship as excellent or good. And very few people rate their relationships as fair or worse.
+:end
+________________
+
+
+chart_title:  Quality of relationship, 2022
+sort_var: w3_relationship_duration_bucket
+metric: w3_rel_qual_bucket
+metric_reverse: true
+text:
+And the longer they are together, the more likely they are to say their relationship is excellent.
+:end
+________________
+
+
+
+
+
+
+End
+chart_title:  Quality of relationship, 2022
+sort_var: w3_relationship_duration_bucket
+metric: w3_rel_qual_bucket
+metric_reverse: true
+addclass: longcopy
+text:
+When I was a kid, my relatives would often tell me about my future wife, and what she would think if I continued to be messy, lazy, and mean. If I went astray, perhaps she wouldn’t marry me. Perhaps I’d be alone.
+
+
+She was an invented character, but that woman—or the idea of what woman—shaped my life. I combined those expectations with the heart-fluttering stories I saw on TV, and convinced myself that my life goal was to find this imaginary soulmate. She would love me, because that is her purpose in this story, and in turn she would marry me and have my kids.
+
+
+Seeing happy couples like Robert and Linda was evidence that these love stories were not only real, but also attainable.
+
+
+But imagining myself living this story, with this imaginary woman, always felt a bit off. Who is she? What does *she* want? What do *I* want? And what if those pieces don’t fit together into a workable love story—one  that could be told in a pithy five-minute speech during the wedding reception? 
+
+
+Most importantly, what if I didn’t want to live that story?
+
+
+It turns out I didn’t have to. Because there was a real person who wanted to write a new story with me—and that we could choose how the story goes. I still watch movies about traditional love stories and find myself tearing up; I still hear about the Roberts and Lindas of the world and feel warm fuzzy feelings. 
+
+
+But it’s time for us to write new love stories. It’s what we want—it’s what we deserve.
+:end
+________________
+
+
+chart_title:  Quality of relationship, 2022
+sort_var: 
+metric: 
+metric_reverse: true
+text:
+**Explore the data**
+:end
+[]
+
+
+methods:
+<h6>Data</h6>
+Rosenfeld, Michael J., Reuben J. Thomas, and Sonia Hausen. 2023. How Couples Meet and Stay Together 2017-2020-2022 combined dataset. [Computer files]. Stanford, CA: Stanford University Libraries. https://data.stanford.edu/hcmst2017
+:end
+
+
+
+
+Tab 2
+CUT
+Yet every time I made a decision in my own life to subvert the expectations of my relationships, it felt scary and, honestly, like I was a failure in some way—even though I was just doing what I thought would make me, and my partner, happy.
+
+
+What I didn’t know was that every generation reinvents what kind of partnerships it wants, and I think in general the direction of what we expect from relationships is good. More and more, it’s about two humans who don’t just love each other, but also find that their expectations of life align—that they will help each other become more of who they want to be, rather than sacrificing for the other. It’d be a hell of a lot easier if we all had a true soul mate in the world that we had to find, and that there were cosmic forces that ensured our paths crossed. That would make strong feelings enough to make decisions about our relationships. But now we’re looking for more—and the people who find it are even more satisfied, especially in the face of a crisis.
+
+
+=
+
+
+For one, Americans are growing increasingly disillusioned with [dating apps](https://www.theatlantic.com/technology/archive/2024/04/dating-apps-are-starting-crack/678022/), especially as these tech companies prioritize profits over everything else.
+
+
+Some researchers say that young people just need more help dating, especially because our phones have taken us away from in-person interaction. They argue young people need ”[road maps](https://ifstudies.org/blog/todays-young-adults-are-in-a-dating-recession)” for finding a partner.
+
+
+And others say the “[manosphere](https://www.theguardian.com/lifeandstyle/video/2026/apr/21/how-the-manosphere-ruined-dating-the-global-dating-crisis-episode-1)” is to blame—the cultural, often misogynistic efforts to promote masculinity among boys.
+
+
+All of those seem to hit on some aspect of why younger generations are dating less and getting married at lower rates.
+
+
+But there’s one more thing I want to bring up: Over the last few generations, our expectations of relationships have changed. Not long ago, we lived in a world with rigid gender roles, which came with explicit scripts that people could follow to date, marry, and live a life in that marriage. We often saw success in our love lives as personal victories—as validation of who we are and who we choose to be. It came with specific archetypes we could play, and when we filled those roles—which were often inherently patriarchal and misogynistic, yet modeled by both men and women—we were satisfied.
+
+
+Our expectations of relationships are different now, largely for the better. We want more flexible and negotiated partnerships that prioritize happiness. This means that relationships are able to take all kinds of shapes, and good partnerships can look any sort of way.
+
+
+But there’s still a subset of Americans, often boys, who hold strong to the old roles—and, in turn, try to preserve their traditionally masculine identities that are no longer compatible with the evolving expectations of relationships.
+
+
+Seeing modern relationships in this broader scope is, I think, quite useful because it helps us see why there’s a mismatch between expectations and identity.
+
+
+–
+Tab 3
+Them
+
+
+A few weeks ago, I was riding home on a train full of people yearning to get home to their couch. One of the people was a woman holding herself steady on a pole, while playing an intense role-playing game on her phone. She had a “don’t fuck with me” look on her face.
+
+
+We arrived at the next station. The doors opened. And in walked a man who grabbed the same pole, pulled out his phone, and started playing the same role-playing game.
+
+
+After about 30 seconds, they both looked up—and their expressionless faces broke into huge smiles. Then they saw that they were playing the same game, and broke into an all-out laughter. They pecked each other on the lips, and
+
+
+
+
+
+
+===
+
+
+Her
+
+
+When I was a kid, my family would often tell me about my future wife, and what she would think if I continued to be messy, lazy, and mean. If I went radically astray, perhaps she wouldn’t even marry me. 
+
+
+She was an invented character, but that woman—or the idea of what woman—shaped my life. It told me that a core life goal is to find her. Because I would love her and she would love me, and then we’d accomplish our life-long goals of getting married, having kids, and living happily ever after.
+
+
+Working on this piece helped me understand why this imaginary wife existed—and how the idea of her was reified in real life and pop culture. 
+
+
+But here’s the catch: I could never actually imagine myself living that life; it felt like playing house—or just pure mimicry. My conception of that future was just as imaginary as she was.
+
+
+==
+
+
+The image
+
+
+What we expect out of relationships has changed over time.
+
+
+Initially it was about survival and passing on our family line. Then it was about companionship, but in the form of specific gender roles we were expected to fill. But now we want our partners to help us feel fulfilled—and to grow as individuals. And because we are all different, this means we can’t merely follow a script. We have to understand what our partners want, what we want, and whether those two things can not only coexist, but also thrive individually.
+
+
+What we say we want doesn’t always align with what we do.
+
+
+Negotiated alignment: People who aligned with their partners on COVID protocols reported having far higher quality relationships than those who didn’t. 
+
+
+Expectation alignment: People who were in relationships where the man earns more money reported having higher quality relationships.
+
+
+===
+
+
+What protects relationships from external stress is active alignment—the ongoing work of negotiating shared meaning, not just matching on traits.
+
+
+Existing relationship quality determines how much growth a couple can extract from a crisis. Excellent relationships have headroom; struggling relationships don't.
+
+
+Both of these point away from Finkel's “all-or-nothing” universal bar, because what predicts good outcomes isn’t ambition or self-actualization — it's the couple successfully doing their own negotiation work.
+
+
+===
+
+
+One core part of what makes people satisfied in a relationship hasn’t changed: What are our expectations—and are we able to negotiate a partnership with someone else that meets those goals?
+
+
+But what has changed is our expectations. 
+
+
+For one, our love lives can now be far more individualistic. We dont need out friends and family to introduce us to potential mates. We dont need to marry for economic gain, to preserve social class, or for our family legacies. We can choose our relationships for ourselves. 
+
+
+Furthermore, for generations, women—and sometimes men—have said they wanted egalitarian relationships, less tied to specific gender roles and driven more by what we want. So our relationships dont have to look or function a certain way. We can now see that we have agency to negotiate a partnership that works for us, both as individuals and as couples, and that the relationship is for us and no one else. 
+
+
+However, the enduring scripts of dating, marriage, and our gender roles continue to shape how we behave. This is especially around men wanting to preserve or even champion masculinity as the defining trait of their identity—and expressed through the actions they take in their relationships to reaffirm that masculinity.
+
+
+What I see are generations wanting to raise those expectations so they champion what we want as individuals, rather than to reify societal and gender roles. That means the scripts that we championed from our love stories—the ones that introduced us to love—may not be apt for what we actually want.
+
+
+That means we need to write our own high-stakes scripts.
+
+
+
+
+==
+
+
+===
+
+
+My mom would often say to me: “If this is how you behave, then your future wife will blame me for raising a bad husband.” It was clear how aware my mom was of the gender dynamics that governed marriages—the unfair expectations for women and the roles I’d be expected to play as a man. But of course it was lost on me.
+
+
+However, one day I replied: “Well, then I won’t get married.”
+
+
+It’s the first time I ever entertained not following the script—of doing what made me happy.
+
+
+The old model of relationships gave us a clear path. Success meant being a good breadwinner, homemaker, parent, etc. We experienced it in our families, saw it depicted on TV, and even imagined it when we envisioned our futures. It didn’t have to be invented, because we know the route and the destination.
+
+
+But the new model requires us to figure out what we actually want, with our partners. It’s an incredibly high bar—and often those expectations aren’t met.
+
+
+In turn, average relationships are worse, dating is terrible, and more people are alone.
+
+
+But this isn’t a sign that our culture of relationships is entirely broken; rather, it's showing us a gap in what we want out of our relationships—and a society that makes it immensely hard to meet those goals. Dating apps are designed for profit, not love. Our economy demands that we work far more than we spend on our personal lives. And we still have plenty of misogynistic views of relationships that are not compatible with modern expectations for relationships.
+
+
+Yet what we’re seeing is that, when the stars align and people are able to mold their own relationships, they are immensely happy—and for the first time ever, they can shape a partnership in their own shared image.
