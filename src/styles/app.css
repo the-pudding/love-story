@@ -151,12 +151,12 @@ svg {
 }
 @media (max-width: 420px) {
 	.legendContainer {
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	width: calc(100% - 20px);
-	z-index: 50;
-}
+		position: absolute;
+		top: 20px;
+		left: 10px;
+		width: calc(100% - 20px);
+		z-index: 50;
+	}
 }
 .step {
 	position: relative;
@@ -170,6 +170,9 @@ svg {
 .step:first-child {
 	margin-top: 90vh;
 }
+.step.has-chart {
+	padding-bottom: 130vh;
+}
 .step .textContainer {
 	pointer-events: auto !important;
 	position: absolute;
@@ -180,7 +183,7 @@ svg {
 	padding: 5px 14px 5px 14px;
 	top: 50%;
 	font-size: 16px;
-	line-height: 1.5em;
+	line-height: 1.6em;
 	transform: translate(-50%, -50%);
 	color: var(--textColor);
 	margin-left: 50%;
@@ -190,9 +193,46 @@ svg {
 		font-size: 14px;
 	}
  }
+ .step .textContainer span {
+	padding: 0px 3px;
+	display: inline-block;
+	text-shadow: 0px 0px 3px #000;
+ }
+ .step .textContainer p .magenta {
+	background: #b30057;
+ } 
+  .step .textContainer p .pink {
+	background: #ff24bd;
+ } 
+  .step .textContainer p .purple {
+	background: #9629ba;
+  }
+	.step .textContainer p .lavender {
+	background: #826c91;
+	/* color: black; */
+ } 
+  .step .textContainer p .yellow {
+	background: #c69e18;
+	/* color: black; */
+ } 
+  .step .textContainer p .peach {
+	background:#db8946;
+ } 
+  .step .textContainer p .neutral {
+	background: #8b825f;
+	/* color: black; */
+ } 
+  .step .textContainer p .neutral2 {
+	background: #7a6157;
+	/* color: black; */
+ } 
+
 .step .textContainer a {
 	color: var(--hltextcolor) !important;
 	pointer-events: auto;
+}
+.step .textContainer a:hover {
+	opacity: 0.8;
 }
 .step:first-child {
 	margin-top: 90vh;

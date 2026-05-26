@@ -32,13 +32,12 @@
 		const g = genderNoun(gender);
 		const isOther = race === "Other, Non-Hispanic";
 		const raceStr = formatRace(race);
+		const ageStr = age != null ? `${age}-year-old` : null;
 		if (isOther) {
-			if (age === "65+") return `This is a ${w(g)} of ${w("another non-Hispanic background")} who is ${w("65 or older")}.`;
-			if (age) return `This is a ${w(age.replace(" to ", "–") + "-year-old")} ${w(g)} of ${w("another non-Hispanic background")}.`;
+			if (ageStr) return `This is a ${w(ageStr)} ${w(g)} of ${w("another non-Hispanic background")} (in 2022).`;
 			return `This is a ${w(g)} of ${w("another non-Hispanic background")}.`;
 		}
-		if (age === "65+") return `This is a ${w(raceStr)} ${w(g)} who is ${w("65 or older")}.`;
-		if (age) return `This is a ${w(age.replace(" to ", "–") + "-year-old")} ${w(raceStr)} ${w(g)}.`;
+		if (ageStr) return `This is a ${w(ageStr)} ${w(raceStr)} ${w(g)} (in 2022).`;
 		return `This is a ${w(raceStr)} ${w(g)}.`;
 	}
 
@@ -185,7 +184,7 @@
 	<button class="detailsClose" onclick={onclose}>Click to close</button>
 	<div class="modalData">
 		{#if person}
-			{@const age = getVal(person, "d", "w1_ppage")}
+			{@const age = getVal(person, "d", "w3_ppage_raw")}
 			{@const gender = getVal(person, "d", "w1_ppgender")}
 			{@const race = getVal(person, "d", "w1_ppethm")}
 			{@const partyId = getVal(person, "w1", "w1_partyid7")}
@@ -325,6 +324,18 @@
 		transition: left 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 		overflow-y: scroll;
 		pointer-events: auto;
+		scrollbar-color: #3d2840 black;
+		scrollbar-width: thin;
+	}
+	.shelf::-webkit-scrollbar {
+		width: 5px;
+	}
+	.shelf::-webkit-scrollbar-track {
+		background: black;
+	}
+	.shelf::-webkit-scrollbar-thumb {
+		background: #3d2840;
+		border-radius: 3px;
 	}
 	.shelf.shelfopen {
 		left: 0px;

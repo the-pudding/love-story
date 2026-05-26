@@ -161,6 +161,8 @@ const MANUAL_OVERRIDES = {
 	w2_otherdate_combo: { "In a relationship": -1, "No, I have not met anyone for dating, romance, or sex  in the past year": 1, "Yes, I have met at least one person for dating, romance, or sex  in the past year.": 2 },
 	// Raw variables added to export — lock sort order so gdoc can't override with stale sheet values
 	w3_vaccine_same: { "yes": 1, "no": 2 },
+	// Derived binary from w3_COVID_agreement: computed in notebook, not in the sheet
+	w3_covid_complete_agree: { "Single": -1, "yes": 1, "no": 2 },
 	w3_COVID_agreement: {
 		"Partner and I have been in complete agreement about how to be safe during the pandemic": 1,
 		"Partner and I have mostly agreed about how to be safe during the pandemic": 2,
@@ -234,7 +236,15 @@ const fetchMetricTranslations = async () => {
 			}
 		}
 
-		// Apply manual overrides — these take precedence over the sheet
+		// Merge overrides: add entries without replacing the whole key
+		const MANUAL_MERGE_OVERRIDES = {
+			w2_relationship_end: { "Single": -1 },
+		};
+		for (const [key, entries] of Object.entries(MANUAL_MERGE_OVERRIDES)) {
+			translations[key] = { ...(translations[key] ?? {}), ...entries };
+		}
+
+		// Apply manual overrides — these take precedence over the sheet (replaces entire key)
 		Object.assign(translations, MANUAL_OVERRIDES);
 
 		return JSON.stringify(translations, null, 2);
@@ -270,6 +280,25 @@ const fetchMetricTranslations = async () => {
 						parsed.colors[key] = normalized;
 					}
 				}
+				// Re-apply custom step fields that Google Docs can't store
+				const STEP_PATCHES = [
+					{
+						match: (s) => s.sort_var === "w3_relationship_duration_bucket" && s.metric === "w3_Q32_simple",
+						patch: { null_value: -1, keep_null_sort: true }
+					},
+					{
+						match: (s) => s.chart_title === "What happened to relationships from 2017 to 2020",
+						patch: { null_value: -1, single_sort_values: [3, 4] }
+					},
+				];
+				if (parsed.story) {
+					for (const step of parsed.story) {
+						for (const { match, patch } of STEP_PATCHES) {
+							if (match(step)) Object.assign(step, patch);
+						}
+					}
+				}
+
 				str = JSON.stringify(parsed, null, 2);
 			}
 			const file = `${CWD}/${d.filepath}`;

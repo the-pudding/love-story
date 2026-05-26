@@ -1,9 +1,9 @@
 <script>
 	import { onMount, onDestroy } from "svelte";
+	import { Tween } from "svelte/motion";
+	import { cubicOut } from "svelte/easing";
 	import copy from "$data/copy.json";
-	const bgColor = getComputedStyle(document.documentElement)
-		.getPropertyValue("--bgcolor")
-		.trim();
+	const bgColor = "#1d0f1a";
 	const textColor = "#a399a8";
 	const hexToColorName = {
 		"#b30057": "magenta",
@@ -23,9 +23,10 @@
 		personSize,
 		zoomId = null,
 		zoomLabel = null,
+		selectedId = null,
 		labels = [],
 		padding = 20,
-		topPadding = 20,
+		topPadding = 50,
 		w,
 		h,
 		onpersonclick = null,
@@ -34,75 +35,27 @@
 		zoomSprite = null
 	} = $props();
 
-	// Mutable state object read by the p5 sketch each frame.
-	const state = {
-		data: [],
-		positions: new Map(),
-		personColors: new Map(),
-		personSize: 20,
-		padding: 20,
-		topPadding: 20,
-		w: 0,
-		h: 0,
-		zoomId: null,
-		zoomLabel: null,
-		labels: [],
-		zoom: 1,
-		introMode: false,
-		zoomSprite: null
-	};
-
-	$effect(() => {
-		state.data = data ?? [];
-		state.positions = positions;
-		state.personColors = personColors;
-		state.personSize = personSize;
-		state.padding = padding;
-		state.topPadding = topPadding;
-		state.w = w;
-		state.h = h;
-		state.zoomId = zoomId;
-		state.zoomLabel = zoomLabel;
-		state.labels = labels ?? [];
-		state.onpersonclick = onpersonclick;
-		state.fastMode = fastMode;
-		state.introMode = introMode;
-		state.zoomSprite = zoomSprite;
-	});
-
-	let container;
-	let p5Instance;
-
 	// Sprite sheet constants
 	const zoomSpeed = 0.06;
 	const zoomLevel = 7;
-	const zoomIconMinPx = 160;   // min zoomed icon height in screen pixels
-	const zoomIconMaxPx = 200;  // max zoomed icon height in screen pixels
-	const spriteAnimSpeed = 1.2;  // frame advance multiplier (higher = faster animation)
+	const zoomIconMinPx = 160;
+	const zoomIconMaxPx = 200;
+	const spriteAnimSpeed = 1.2;
 	const spriteWidthMin = 0.8;
 	const spriteWidthMax = 1.4;
 	const spriteHeightMin = 0.9;
 	const spriteHeightMax = 1.2;
-	const spriteMultiplier = 2;
-	const spriteWidth = 400 / 8 * spriteMultiplier;
-	const spriteHeight = 1000 / 10 * spriteMultiplier;
+	const spriteWidth = 400 / 8;
+	const spriteHeight = 1000 / 10;
 	const spriteRows = 10;
 	const spriteCols = 8;
-	const zoomSpriteWidth = 300;   // 2400 / 8
-	const zoomSpriteHeight = 300;  // 1500 / 5
+	const zoomSpriteWidth = 300;
+	const zoomSpriteHeight = 300;
 	const zoomSpriteRowIndex = { "meet": 0, "date": 1, "married": 2, "kids": 3, "thumbsup": 4 };
-	const zoomSpriteFadeSpeed = 6; // alpha units per frame (0-255)
+	const zoomSpriteFadeSpeed = 6;
 	const spriteRowLabels = [
-		"f-left",
-		"m-left",
-		"f-right",
-		"m-right",
-		"f-stand",
-		"m-stand",
-		"f-down",
-		"m-down",
-		"f-up",
-		"m-up"
+		"f-left", "m-left", "f-right", "m-right",
+		"f-stand", "m-stand", "f-down", "m-down", "f-up", "m-up"
 	];
 	const spriteKeys = [
 		"00-intro", "00-intro1",
@@ -116,16 +69,68 @@
 		"01-neutral2","02-neutral2","03-neutral2","04-neutral2"
 	];
 	const raceOptions = {
-		"Black, Non-Hispanic":  ["03", "04"],
-		"Hispanic":             ["02", "03"],
-		"White, Non-Hispanic":  ["01", "02"],
+		"Black, Non-Hispanic": ["04"],
+		"Hispanic":            ["02", "03"],
+		"White, Non-Hispanic": ["01", "02"],
 	};
-	const raceOptionsFallback = ["01", "02", "03"];
+	const raceOptionsFallback = ["01", "02", "03", "04"];
+
+	// HTML loading overlay state
+	let spritesLoaded = $state(0);
+	const totalSprites = spriteKeys.length;
+	let introSpriteLoaded = $state(false);
+	const progress = new Tween(0, { duration: 5000, easing: cubicOut });
+	progress.set(0.9);
+
+	$effect(() => {
+		if (introSpriteLoaded || spritesLoaded >= totalSprites) progress.set(1, { duration: 200 });
+	});
+
+	// Mutable context object shared between Svelte and p5 sketch each frame.
+	const sk = {
+		data: [],
+		positions: new Map(),
+		personColors: new Map(),
+		personSize: 20,
+		padding: 20,
+		topPadding: 20,
+		w: 0,
+		h: 0,
+		zoomId: null,
+		zoomLabel: null,
+		selectedId: null,
+		labels: [],
+		zoom: 1,
+		introMode: false,
+		zoomSprite: null
+	};
+
+	$effect(() => {
+		sk.data = data ?? [];
+		sk.positions = positions;
+		sk.personColors = personColors;
+		sk.personSize = personSize;
+		sk.padding = padding;
+		sk.topPadding = topPadding;
+		sk.w = w;
+		sk.h = h;
+		sk.zoomId = zoomId;
+		sk.zoomLabel = zoomLabel;
+		sk.selectedId = selectedId;
+		sk.labels = labels ?? [];
+		sk.onpersonclick = onpersonclick;
+		sk.fastMode = fastMode;
+		sk.introMode = introMode;
+		sk.zoomSprite = zoomSprite;
+	});
+
+	let container;
+	let p5Instance;
 
 	class Person {
-		constructor(p, state, person, canvasW, canvasH) {
+		constructor(p, sk, person, canvasW, canvasH) {
 			this.p = p;
-			this.state = state;
+			this.sk = sk;
 			this.id = person.id;
 			const racePool = raceOptions[person.d?.[3]] ?? raceOptionsFallback;
 			const tr = ((this.id * 3266489917) >>> 0) / 4294967295;
@@ -135,7 +140,7 @@
 			this.gender = this.id === 524 ? "m" : (tg < 0.85 ? dataGender : (dataGender === "m" ? "f" : "m"));
 			this.loc = p.createVector(
 				p.random(canvasW) - canvasW / 2,
-				-h / 2 - state.personSize * 2
+				-h / 2 - sk.personSize * 2
 			);
 			if (firstID && this.id == firstID) {
 				this.loc = p.createVector(
@@ -146,7 +151,7 @@
 			this.target_loc = p.createVector(0, 0);
 			this.vel = p.createVector(0, 0);
 			this.acc = p.createVector(0, 0);
-			this.topSpeed = p.random(8, 12);
+			this.topSpeed = p.random(0.4, 0.6) * sk.personSize;
 			this.distance = 100;
 			this.frameCount = 0;
 			this.zoomSpriteAlpha = 0;
@@ -161,26 +166,31 @@
 		}
 
 		seek(collide) {
-			const { p, state } = this;
-			const isMe = this.id === state.zoomId;
-			const isZoomed = state.zoomId !== null;
+			const { p, sk } = this;
+			const isMe = this.id === sk.zoomId;
+			const isZoomed = sk.zoomId !== null;
 
 			if (collide[0] !== 0 || collide[1] !== 0) {
 				this.acc.add(p.createVector(collide[0] / 10, collide[1] / 10));
 			}
 
-			const target = state.positions.get(this.id);
+			const target = sk.positions.get(this.id);
 			if (target) {
-				const ps = state.personSize;
-				this.target_loc.x = target.x + ps / 2 + state.padding - state.w / 2;
-				this.target_loc.y = target.y + ps + state.topPadding - state.h / 2;
+				const ps = sk.personSize;
+				this.target_loc.x = target.x + ps / 2 + sk.padding - sk.w / 2;
+				this.target_loc.y = target.y + ps + sk.topPadding - sk.h / 2;
 			}
 
 			if (isMe && isZoomed) {
 				this.target_loc.x = 0;
 				this.target_loc.y = 0;
 			} else if (!isMe && isZoomed) {
-				this.target_loc.y = -state.h / 2 - state.personSize * 3;
+				this.target_loc.y = -sk.h / 2 - sk.personSize * 3;
+			}
+
+			if (sk.introMode && firstID && this.id === firstID) {
+				this.target_loc.x = 0;
+				this.target_loc.y = 0;
 			}
 
 			const desired = p.createVector(
@@ -189,13 +199,13 @@
 			);
 			this.distance = desired.mag();
 			desired.normalize();
-			const speedMult = state.fastMode ? 20 : 1;
+			const speedMult = sk.fastMode ? 20 : 1;
 			const speed =
 				this.distance < 100
 					? p.map(this.distance, 0, 100, 0, this.topSpeed * speedMult)
 					: this.topSpeed * speedMult;
 			desired.mult(speed);
-			this.vel.lerp(desired, state.fastMode ? 0.6 : 0.2);
+			this.vel.lerp(desired, sk.fastMode ? 0.6 : 0.2);
 
 			if (this.distance < 3) {
 				this.vel.mult(0.5);
@@ -206,35 +216,35 @@
 		}
 
 		update() {
-			const { state } = this;
-			const isMe = this.id === state.zoomId;
-			const isZoomed = state.zoomId !== null;
+			const { sk } = this;
+			const isMe = this.id === sk.zoomId;
+			const isZoomed = sk.zoomId !== null;
 
 			this.vel.add(this.acc);
-			this.vel.limit(this.topSpeed * (state.fastMode ? 4 : 1));
+			this.vel.limit(this.topSpeed * (sk.fastMode ? 4 : 1));
 			this.loc.add(this.vel);
 			this.acc.mult(0);
 
 			if (!isZoomed || isMe) {
-				const ps = state.personSize;
+				const ps = sk.personSize;
 				this.loc.x = Math.max(
-					-state.w / 2 + ps / 2,
-					Math.min(state.w / 2 - ps / 2, this.loc.x)
+					-sk.w / 2 + ps / 2,
+					Math.min(sk.w / 2 - ps / 2, this.loc.x)
 				);
 			}
 		}
 
 		display(sprites) {
-			const { p, state } = this;
-			const ps = state.personSize;
-			const isMe = this.id === state.zoomId;
+			const { p, sk } = this;
+			const ps = sk.personSize;
+			const isMe = this.id === sk.zoomId;
 
-			if (isMe && state.zoomSprite) {
+			if (isMe && sk.zoomSprite) {
 				const zoomSheet = sprites["00-intro1"];
 				if (zoomSheet) {
-					if (this.displayedZoomSprite !== state.zoomSprite && !this.zoomSpriteFadingOut) {
+					if (this.displayedZoomSprite !== sk.zoomSprite && !this.zoomSpriteFadingOut) {
 						if (this.displayedZoomSprite === null) {
-							this.displayedZoomSprite = state.zoomSprite;
+							this.displayedZoomSprite = sk.zoomSprite;
 						} else {
 							this.zoomSpriteFadingOut = true;
 						}
@@ -243,7 +253,7 @@
 					if (this.zoomSpriteFadingOut) {
 						this.zoomSpriteAlpha = Math.max(0, this.zoomSpriteAlpha - zoomSpriteFadeSpeed);
 						if (this.zoomSpriteAlpha === 0) {
-							this.displayedZoomSprite = state.zoomSprite;
+							this.displayedZoomSprite = sk.zoomSprite;
 							this.zoomSpriteFadingOut = false;
 						}
 					} else {
@@ -254,12 +264,27 @@
 					const frameIdx = Math.floor(this.frameCount) % 8;
 					this.frameCount += 0.1 * spriteAnimSpeed;
 					const drawSize = ps * 2;
+					const zoomYNudge = ps * 0.5;
 					p.tint(255, this.zoomSpriteAlpha);
-					p.image(zoomSheet, -drawSize / 2, -drawSize, drawSize, drawSize,
+					p.image(zoomSheet, -drawSize / 2, -drawSize + zoomYNudge, drawSize, drawSize,
 						frameIdx * zoomSpriteWidth, rowIdx * zoomSpriteHeight, zoomSpriteWidth, zoomSpriteHeight);
 					p.noTint();
 				}
 				return;
+			}
+
+			// Intro hero: show firstID large and centered using zoom sprite
+			if (sk.introMode && firstID && this.id === firstID) {
+				const zoomSheet = sprites["00-intro1"];
+				if (zoomSheet) {
+					const frameIdx = Math.floor(this.frameCount) % 8;
+					this.frameCount += 0.1 * spriteAnimSpeed;
+					const drawSize = p.constrain(ps * 2 * zoomLevel, zoomIconMinPx, zoomIconMaxPx);
+					const zoomYNudge = drawSize * 0.25;
+					p.image(zoomSheet, -drawSize / 2, -drawSize + zoomYNudge, drawSize, drawSize,
+						frameIdx * zoomSpriteWidth, 0, zoomSpriteWidth, zoomSpriteHeight);
+					return;
+				}
 			}
 
 			if (this.displayedZoomSprite !== null) {
@@ -269,10 +294,9 @@
 			this.displayedZoomSprite = null;
 			this.zoomSpriteFadingOut = false;
 
-			const color = state.personColors.get(this.id) || "#e2e8f0";
-
+			const color = sk.personColors.get(this.id) || "#826c91";
 			const colorName = hexToColorName[color] ?? "neutral";
-			const spriteKey = state.introMode ? "00-intro" : this.race + "-" + colorName;
+			const spriteKey = sk.introMode ? "00-intro" : this.race + "-" + colorName;
 			const spriteSheet = sprites[spriteKey];
 			if (!spriteSheet) return;
 
@@ -298,18 +322,19 @@
 			const sy = rowIndex * spriteHeight + 2;
 			const sw = ps * (isMe ? 1 : this.widthMult);
 			const sh = ps * 2 * (isMe ? 1 : this.heightMult);
+			const yNudge = isMe ? ps * 0.5 : 0;
 			if (this.flipX && rowLabel.endsWith("-stand")) {
 				p.push();
-				p.translate(this.loc.x, this.loc.y - sh);
+				p.translate(this.loc.x, this.loc.y - sh + yNudge);
 				p.scale(-1, 1);
 				p.image(spriteSheet, -sw / 2, 0, sw, sh, sx, sy, spriteWidth, spriteHeight - 2);
 				p.pop();
 			} else {
-				p.image(spriteSheet, this.loc.x - sw / 2, this.loc.y - sh, sw, sh, sx, sy, spriteWidth, spriteHeight - 2);
+				p.image(spriteSheet, this.loc.x - sw / 2, this.loc.y - sh + yNudge, sw, sh, sx, sy, spriteWidth, spriteHeight - 2);
 			}
 
-			if (isMe && state.zoom > 2 && state.zoomLabel) {
-				const label = state.zoomLabel;
+			if (isMe && sk.zoom > 2 && sk.zoomLabel) {
+				const label = sk.zoomLabel;
 				const fontSize = ps * 0.4;
 				const padding = fontSize * 0.5;
 				const boxH = fontSize + padding;
@@ -334,67 +359,96 @@
 		let atlasFont = null;
 
 		p.setup = async () => {
-			canvasW = state.w || 1;
-			canvasH = state.h || 1;
+			p.pixelDensity(Math.min(window.devicePixelRatio || 1, 2));
+			canvasW = sk.w || 1;
+			canvasH = sk.h || 1;
 			p.createCanvas(canvasW, canvasH);
 			p.noSmooth();
 
-			atlasFont = await new FontFace("AtlasTypewriter", "url(assets/AtlasTypewriter-Medium-Web.woff2)")
+			atlasFont = await new FontFace("AtlasTypewriter", "url(assets/AtlasGrotesk-Bold-Web.woff2)")
 				.load()
 				.then((font) => { document.fonts.add(font); return "AtlasTypewriter"; })
 				.catch(() => null);
 
-			await Promise.all(
-				spriteKeys.map(async (key) => {
-					sprites[key] = await p.loadImage("assets/leftovers_resized/" + key + ".png");
-				})
-			);
+			// Load zoom sprite first so intro hero renders immediately
+			const orderedKeys = ["00-intro1", ...spriteKeys.filter(k => k !== "00-intro1")];
+			orderedKeys.forEach((key) => {
+				p.loadImage(
+					"assets/love/" + key + ".webp",
+					(img) => {
+						sprites[key] = img;
+						spritesLoaded++;
+						if (key === "00-intro1") introSpriteLoaded = true;
+					},
+					() => { console.warn("Failed to load sprite:", key); spritesLoaded++; }
+				);
+			});
 		};
 
 		p.draw = () => {
-			if (state.w > 0 && state.h > 0 && (state.w !== canvasW || state.h !== canvasH)) {
-				canvasW = state.w;
-				canvasH = state.h;
+			if (sk.w > 0 && sk.h > 0 && (sk.w !== canvasW || sk.h !== canvasH)) {
+				canvasW = sk.w;
+				canvasH = sk.h;
 				p.resizeCanvas(canvasW, canvasH);
 			}
+			p.clear();
+			// p.background(bgColor);
 
-			p.background(bgColor);
-
-			if (all_people.length === 0 && state.data?.length > 0) {
-				all_people = state.data.map(
-					(person) => new Person(p, state, person, canvasW, canvasH)
+			if (all_people.length === 0 && sk.data?.length > 0) {
+				all_people = sk.data.map(
+					(person) => new Person(p, sk, person, canvasW, canvasH)
 				);
 			}
 
-			if (state.zoomId !== null) {
-				const iconPx = p.constrain(state.personSize * 2 * zoomLevel, zoomIconMinPx, zoomIconMaxPx);
-				targetZoom = iconPx / (state.personSize * 2);
+			if (sk.zoomId !== null) {
+				const iconPx = p.constrain(sk.personSize * 2 * zoomLevel, zoomIconMinPx, zoomIconMaxPx);
+				targetZoom = iconPx / (sk.personSize * 2);
 			} else {
 				targetZoom = 1;
 			}
 			zoom = p.lerp(zoom, targetZoom, zoomSpeed);
-			state.zoom = zoom;
+			sk.zoom = zoom;
 
 			p.translate(canvasW / 2, canvasH / 2);
 			p.scale(zoom);
 
+			// Spotlight behind selected person
+			if (sk.selectedId !== null && sk.zoomId === null) {
+				for (const person of all_people) {
+					if (person.id === sk.selectedId) {
+						const ps = sk.personSize;
+						const cx = person.loc.x;
+						const cy = person.loc.y - ps * person.heightMult;
+						const r = ps * 1.6;
+						p.drawingContext.shadowBlur = ps * 5;
+						p.drawingContext.shadowColor = "rgba(255, 255, 255, 1)";
+						p.noStroke();
+						p.fill(255, 255, 255, 200);
+						p.ellipse(cx, cy, r, r);
+						p.drawingContext.shadowBlur = 0;
+						p.drawingContext.shadowColor = "rgba(0,0,0,0)";
+						break;
+					}
+				}
+			}
+
 			for (let i = 0; i < all_people.length; i++) {
-				const collide = checkCollision(all_people[i], i, all_people, state.personSize);
+				const collide = checkCollision(all_people[i], i, all_people, sk.personSize);
 				all_people[i].seek(collide);
 				all_people[i].update();
 				all_people[i].display(sprites);
 			}
 
-			if (state.labels?.length > 0) {
-				const fontSize = Math.max(14, Math.min(18, state.personSize * 1.1));
+			if (sk.labels?.length > 0) {
+				const fontSize = Math.max(14, Math.min(18, sk.personSize * 1.1));
 				if (atlasFont) p.textFont(atlasFont);
 				p.textSize(fontSize);
 				p.textAlign(p.LEFT, p.TOP);
 				p.fill(textColor);
 				p.noStroke();
-				for (const label of state.labels) {
-					const lx = label.x + state.padding - state.w / 2;
-					const ly = label.y + state.topPadding - state.h / 2 - 8;
+				for (const label of sk.labels) {
+					const lx = label.x + sk.padding - sk.w / 2;
+					const ly = label.y + sk.topPadding - sk.h / 2 - 8;
 					p.text(label.text, lx, ly);
 				}
 			}
@@ -402,7 +456,8 @@
 
 		p.mouseClicked = (event) => {
 			if (event?.target?.closest?.(".textContainer, .step.longcopy")) return;
-			const ps = state.personSize;
+				if (sk.zoomId !== null) return;
+			const ps = sk.personSize;
 			const worldX = (p.mouseX - canvasW / 2) / zoom;
 			const worldY = (p.mouseY - canvasH / 2) / zoom;
 			let found = null;
@@ -415,7 +470,7 @@
 					break;
 				}
 			}
-			state.onpersonclick?.(found);
+			sk.onpersonclick?.(found);
 		};
 	};
 
@@ -451,3 +506,49 @@
 	bind:this={container}
 	style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
 ></div>
+
+{#if progress.current < 0.999}
+	<div class="loadOverlay">
+		<div class="spinWrap">
+			<div class="spinRing"></div>
+			<span class="spinPct">{Math.round(progress.current * 100)}%</span>
+		</div>
+	</div>
+{/if}
+
+<style>
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+	.loadOverlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+	}
+	.spinWrap {
+		position: relative;
+		width: 44px;
+		height: 44px;
+	}
+	.spinRing {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		border: 3px solid rgba(160, 110, 180, 0.2);
+		border-top-color: rgba(160, 110, 180, 0.85);
+		animation: spin 0.8s linear infinite;
+	}
+	.spinPct {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 12px;
+		color: rgba(160, 110, 180, 0.85);
+		font-family: var(--font-mono);
+	}
+</style>

@@ -18,8 +18,9 @@
 	// `value` is the step index output by Scrolly (0, 1, 2, 3...).
 	let value = $state(undefined);
 	let lastStep = $state(0);
+	let hasEnteredStory = $state(false);
 	$effect(() => {
-		if (value !== undefined) lastStep = value;
+		if (value !== undefined) { lastStep = value; hasEnteredStory = true; }
 	});
 	const stepIndex = $derived(value ?? lastStep);
 
@@ -27,6 +28,7 @@
 	const canvasPadding = 20;
 	const baseLegendHeight = 60;
 	const chartTitleHeight = 22;
+	let legendContainerHeight = $state(baseLegendHeight);
 
 	const chartTitle = $derived(copy.story[stepIndex]?.chart_title ?? null);
 	const legendHeight = $derived(
@@ -182,7 +184,7 @@
 	}
 
 	// --- Color Scale Logic ---
-	const nullColor = "#e2e8f0";
+	const nullColor = "#826c91";
 
 	const palette = $derived.by(() => {
 		const fallback = [
@@ -318,6 +320,7 @@
 				(item) =>
 					item.numericValue >= minMetric && item.numericValue <= maxMetric
 			)
+			.filter((item) => keepNullSort || sortVar !== "w3_relationship_duration_bucket" || nullValue === null || item.numericValue !== nullValue)
 			.filter(
 				(item, _, arr) =>
 					arr
@@ -326,6 +329,24 @@
 					item.label
 			)
 			.sort((a, b) => {
+				const entry = chartConfig.colors?.[metric];
+				if (entry && !Array.isArray(entry)) {
+					const keys = Object.keys(entry).map(k => k.toLowerCase());
+					const translations = metricTranslations[metric];
+					const posOf = (numVal) => {
+						const matches = Object.entries(translations ?? {}).filter(([, v]) => Number(v) === numVal);
+						if (!matches.length) return 999;
+						let best = 999;
+						for (const [label] of matches) {
+							const pos = keys.indexOf(label.toLowerCase());
+							if (pos !== -1 && pos < best) best = pos;
+						}
+						return best;
+					};
+					const pa = posOf(a.numericValue);
+					const pb = posOf(b.numericValue);
+					if (pa !== pb) return pa - pb;
+				}
 				if (negToEnd) {
 					const negA = a.numericValue < 0;
 					const negB = b.numericValue < 0;
@@ -366,6 +387,22 @@
 				? Object.keys(metricTranslations[sortVar])
 				: [];
 
+		// Build metric order from chartConfig key order for within-group sorting
+		const metricConfigEntry = chartConfig.colors?.[metric];
+		const metricOrderMap = new Map();
+		if (metricConfigEntry && !Array.isArray(metricConfigEntry)) {
+			const metricKeys = Object.keys(metricConfigEntry).map(k => k.toLowerCase());
+			const mTrans = metricTranslations[metric];
+			if (mTrans) {
+				for (const [label, numVal] of Object.entries(mTrans)) {
+					const pos = metricKeys.indexOf(label.toLowerCase());
+					if (pos !== -1 && !metricOrderMap.has(Number(numVal))) {
+						metricOrderMap.set(Number(numVal), pos);
+					}
+				}
+			}
+		}
+
 		return [...data].sort((a, b) => {
 			const rawA = a[sortWave]?.[sortIdx];
 			const rawB = b[sortWave]?.[sortIdx];
@@ -400,13 +437,20 @@
 
 				const numA = Number(metricA);
 				const numB = Number(metricB);
-				if (negToEnd) {
-					const negA = numA < 0;
-					const negB = numB < 0;
-					if (negA && !negB) return 1;
-					if (!negA && negB) return -1;
+
+				if (metricOrderMap.size > 0) {
+					const posA = metricOrderMap.get(numA) ?? 999;
+					const posB = metricOrderMap.get(numB) ?? 999;
+					if (posA !== posB) return posA - posB;
+				} else {
+					if (negToEnd) {
+						const negA = numA < 0;
+						const negB = numB < 0;
+						if (negA && !negB) return 1;
+						if (!negA && negB) return -1;
+					}
+					return numA - numB;
 				}
-				return numA - numB;
 			}
 
 			return a.id - b.id;
@@ -471,33 +515,59 @@
 			return { positions: posMap, labels: [] };
 		}
 
+		const showNullGroup = keepNullSort || sortVar === "w3_relationship_duration_bucket";
+		let nullGroup = null;
 		for (const group of groupedData) {
-			labelPositions.push({ text: group.label, x: 0, y: currentY });
+			if (group.value === null || group.value === undefined) {
+				if (!showNullGroup) {
+					for (const p of group.items) {
+						posMap.set(p.id, { x: ((p.id % 60) / 60) * containerWidth, y: -9999 });
+					}
+				} else {
+					nullGroup = group;
+				}
+				continue;
+			}
 
+			labelPositions.push({ text: group.label, x: 0, y: currentY });
 			currentY += labelHeight;
 
 			const numItems = group.items.length;
 			const numCols = Math.min(cols, numItems);
 			const baseRows = Math.floor(numItems / numCols);
 			const extraItems = numItems % numCols;
-
 			let itemIndex = 0;
-
 			for (let col = 0; col < numCols; col++) {
 				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
-
 				for (let row = 0; row < rowsInThisCol; row++) {
-					const p = group.items[itemIndex];
-					posMap.set(p.id, {
+					posMap.set(group.items[itemIndex++].id, {
 						x: col * personSize,
 						y: currentY + row * personSize * 2
 					});
-					itemIndex++;
 				}
 			}
-
 			const totalRows = baseRows + (extraItems > 0 ? 1 : 0);
 			currentY += totalRows * personSize * 2 + groupPadding;
+		}
+
+		// Place null-sort group last, labeled "Single"
+		if (nullGroup) {
+			labelPositions.push({ text: "Single", x: 0, y: currentY });
+			currentY += labelHeight;
+			const numItems = nullGroup.items.length;
+			const numCols = Math.min(cols, numItems);
+			const baseRows = Math.floor(numItems / numCols);
+			const extraItems = numItems % numCols;
+			let itemIndex = 0;
+			for (let col = 0; col < numCols; col++) {
+				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
+				for (let row = 0; row < rowsInThisCol; row++) {
+					posMap.set(nullGroup.items[itemIndex++].id, {
+						x: col * personSize,
+						y: currentY + row * personSize * 2
+					});
+				}
+			}
 		}
 
 		return { positions: posMap, labels: labelPositions };
@@ -566,6 +636,8 @@
 	);
 	const labels = $derived(isCovid ? [] : layout.labels);
 
+	const keepNullSort = $derived(copy.story[stepIndex]?.keep_null_sort === true);
+
 	// If a step specifies null_value, use it to color people with missing data
 	// e.g. Single people have null for w1_q34 but should get palette[0]
 	const nullValue = $derived(
@@ -574,19 +646,44 @@
 			: null
 	);
 
+	const nullSortIds = $derived.by(() => {
+		if (!keepNullSort && sortVar !== "w3_relationship_duration_bucket") return new Set();
+		const nullGroup = groupedData.find(g => g.value === null || g.value === undefined);
+		return new Set(nullGroup?.items.map(p => p.id) ?? []);
+	});
+
+	const singleSortIds = $derived.by(() => {
+		const values = copy.story[stepIndex]?.single_sort_values;
+		if (!values || sortIdx === -1) return new Set();
+		const valueSet = new Set(values.map(Number));
+		return new Set(data.filter(p => {
+			const raw = p[sortWave]?.[sortIdx];
+			const numeric = translateMetric(sortVar, raw);
+			return valueSet.has(Number(numeric));
+		}).map(p => p.id));
+	});
+
+	const isNoColor = $derived(copy.story[stepIndex]?.addclass === "nocolor");
+
+	const nullIconColor = $derived(nullValue !== null ? getColor(nullValue) : null);
+
 	const personColors = $derived.by(() => {
 		const m = new Map();
 		for (const person of data) {
-			const rawMetric = metricIdx !== -1 ? person[wave]?.[metricIdx] : null;
+			if (isNoColor || metricIdx === -1) { m.set(person.id, nullColor); continue; }
+			const rawMetric = person[wave]?.[metricIdx];
 			const metricValue = translateMetric(metric, rawMetric);
-			const colorValue =
-				metricValue == null && nullValue !== null ? nullValue : metricValue;
+			const isNullSort = nullSortIds.has(person.id) || singleSortIds.has(person.id);
+			const isNull = isNullSort || metricValue == null;
+			if (isNull && nullIconColor) { m.set(person.id, nullIconColor); continue; }
+			const colorValue = isNull && nullValue !== null ? nullValue : metricValue;
 			m.set(person.id, getColor(colorValue));
 		}
 		return m;
 	});
 
 	let innerHeight = $state(0);
+	let windowScrollY = $state(0);
 	const triggerOffset = $derived(innerHeight * 0.1);
 
 	let clickedPersonId = $state(null);
@@ -601,7 +698,7 @@
 	reverse: {metricReverse} | zoom_sprite: {zoomSprite}
 </div> -->
 
-<svelte:window bind:innerHeight />
+<svelte:window bind:innerHeight bind:scrollY={windowScrollY} />
 
 <section id="scrolly">
 	<div
@@ -609,39 +706,52 @@
 		bind:clientWidth={containerWidth}
 		bind:clientHeight={containerHeight}
 	>
+		<Canvas
+			{data}
+			{positions}
+			{personColors}
+			{personSize}
+			{zoomId}
+			{zoomLabel}
+			selectedId={clickedPersonId}
+			{labels}
+			sort_varpadding={canvasPadding}
+			topPadding={legendContainerHeight + canvasPadding * 2 + 20}
+			w={containerWidth}
+			h={containerHeight}
+			onpersonclick={(id) => {
+				clickedPersonId = id;
+			}}
+			introMode={!metric && !sortVar}
+			{zoomSprite}
+		/>
+
 		{#if containerWidth > 0}
-			<Canvas
-				{data}
-				{positions}
-				{personColors}
-				{personSize}
-				{zoomId}
-				{zoomLabel}
-				{labels}
-				sort_varpadding={canvasPadding}
-				topPadding={legendHeight + canvasPadding}
-				w={containerWidth}
-				h={containerHeight}
-				onpersonclick={(id) => {
-					clickedPersonId = id;
-				}}
-				introMode={!metric && !sortVar}
-				{zoomSprite}
-			/>
-
-			<!-- {#if currentYear}
-				<div class="yearLabel">{currentYear}</div>
-			{/if} -->
-
-			{#if legendData.length > 0}
-				<div class="legendContainer">
+			{#if chartTitle || legendData.length > 0}
+				<div class="legendContainer" bind:clientHeight={legendContainerHeight}>
 					{#if chartTitle}
 						<div class="chartTitle">{chartTitle}</div>
 					{/if}
-					<Legend items={legendData} />
+					{#if legendData.length > 0}
+						<Legend items={legendData} />
+					{/if}
 				</div>
 			{/if}
 		{/if}
+
+		<div class="headlineContainer" class:hidden={windowScrollY > 50 && (value !== undefined || (hasEnteredStory && lastStep !== 0))}>
+			<h1 class="hed">{copy.hed}</h1>
+			<h2 class="byline">
+				by <a href="https://pudding.cool/author/alvin-chang/">alvin chang</a>
+			</h2>
+		</div>
+
+		<div class="scrollCue" class:hidden={windowScrollY > 50 && (value !== undefined || (hasEnteredStory && lastStep !== 0))}>
+			<span>scroll down</span>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<polyline points="6 9 12 15 18 9"></polyline>
+			</svg>
+		</div>
 
 		{#if isExplore}
 			<div class="exploreControls">
@@ -668,20 +778,13 @@
 		<Scrolly increments={100} top={triggerOffset} showLine={true} bind:value>
 			{#each copy.story as stage, i}
 				{@const active = stepIndex === i}
-				<div class="step {stage.addclass ?? ''}" class:active>
+				<div class="step {stage.addclass ?? ''}" class:active class:has-chart={stage.text?.includes('>>')}>
 					<Text copy={stage.text} />
 				</div>
 			{/each}
 		</Scrolly>
 	</div>
 </section>
-
-<div class="headlineContainer">
-	<h1 class="hed">{copy.hed}</h1>
-	<h2 class="byline">
-		by <a href="https://pudding.cool/author/alvin-chang/">alvin chang</a>
-	</h2>
-</div>
 
 <div class="methods">
 	<h4>Methodology</h4>
@@ -711,6 +814,38 @@
 		text-transform: lowercase;
 		transition: all 1500ms cubic-bezier(0, 1.02, 0.435, 1); /* custom */
 		transition-timing-function: cubic-bezier(0, 1.02, 0.435, 1); /* custom */
+	}
+	.headlineContainer.hidden {
+		opacity: 0;
+		pointer-events: none;
+	}
+	.scrollCue {
+		position: absolute;
+		bottom: 50px;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		color: #b58ab1;
+		font-size: 16px;
+		text-transform: lowercase;
+		letter-spacing: 0.08em;
+		pointer-events: none;
+		transition: opacity 800ms ease;
+	}
+	.scrollCue.hidden {
+		opacity: 0;
+	}
+	.scrollCue svg {
+		width: 30px;
+		height: 30px;
+		animation: scrollBounce 1.4s ease-in-out infinite;
+	}
+	@keyframes scrollBounce {
+		0%, 100% { transform: translateY(0); opacity: 0.5; }
+		50% { transform: translateY(6px); opacity: 1; }
 	}
 	.headlineContainer h1 {
 		font-size: 27px;
@@ -758,14 +893,14 @@
 		gap: 4px;
 	}
 	.exploreHed {
-		font-family: var(--font-mono);
+		font-family: var(--font-sans);
 		font-size: 11px;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 		color: rgba(255, 255, 255, 0.5);
 	}
 	.exploreControls select {
-		font-family: var(--font-mono);
+		font-family: var(--font-sans);
 		font-size: 12px;
 		background-color: transparent;
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='3' viewBox='0 0 4 3'%3E%3Cpath d='M0 0l2 3 2-3z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
@@ -801,13 +936,28 @@
 	}
 
 	.chartTitle {
-		font-family: var(--font-mono);
+		font-family: var(--font-sans);
 		font-size: 18px;
 		font-weight: bold;
 		color: #fff;
-		text-transform: uppercase;
+		/* text-transform: uppercase; */
 		letter-spacing: 0.08em;
 		line-height: 1;
 		margin-bottom: 9px;
+	}
+	@media (max-width: 620px) {
+		.chartTitle {
+			font-size: 17px;
+		}
+	}
+	@media (max-width: 520px) {
+		.chartTitle {
+			font-size: 16px;
+		}
+	}
+	@media (max-width: 420px) {
+		.chartTitle {
+			font-size: 15px;
+		}
 	}
 </style>
