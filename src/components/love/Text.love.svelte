@@ -9,19 +9,30 @@
 		let lines = text.split(/\n/);
 
 		for (let line of lines) {
-			// Image lines: >> alt text | svgName  (or "filler")
+			// Chart lines: >> title | alt text | svg filename | source | source link (optional) | note (optional)
 			if (/^>>\s*/.test(line.trim())) {
 				const content = line.trim().replace(/^>>\s*/, '');
-				const pipeIdx = content.indexOf('|');
-				const altText = (pipeIdx !== -1 ? content.slice(0, pipeIdx) : content).trim();
-				const imageName = (pipeIdx !== -1 ? content.slice(pipeIdx + 1) : '').trim();
-				if (!imageName || imageName.toLowerCase() === 'filler') {
-					finalText.push(`<div class="chartFiller" role="img" aria-label="${altText}"><span class="chartFillerLabel">${altText}</span></div>`);
+				const parts = content.split('|').map(s => s.trim());
+				const [title = '', altText = '', svgFile = '', source = '', sourceLink = '', note = ''] = parts;
+				if (content.toLowerCase().includes('filler')) {
+					finalText.push(`<div class="chartFiller" role="img" aria-label="${title}"><span class="chartFillerLabel">${title}</span></div>`);
 				} else {
-					finalText.push(`<div class="chartWrap"><picture>` +
-						`<source media="(max-width: 620px)" srcset="/charts/${imageName}-mobile.svg">` +
-						`<img src="/charts/${imageName}-desktop.svg" alt="${altText}" class="chartImg">` +
-						`</picture></div>`);
+					const srcAttr = sourceLink
+						? `<a href="${sourceLink}" target="_blank" rel="noopener">${source}</a>`
+						: source;
+					const sourceStr = source
+						? `Source: ${srcAttr}${note ? ` | ${note}` : ''}`
+						: note || '';
+					finalText.push(
+						`<div class="chartWrap">` +
+						(title ? `<p class="chartTitle">${title}</p>` : '') +
+						`<picture>` +
+						`<source media="(max-width: 499px)" srcset="assets/love_charts/${svgFile.replace(/\.svg$/i, '')}_mobile.svg">` +
+						`<img src="assets/love_charts/${svgFile}.svg" alt="${altText}" class="chartImg">` +
+						`</picture>` +
+						(sourceStr ? `<p class="chartSource">${sourceStr}</p>` : '') +
+						`</div>`
+					);
 				}
 				continue;
 			}
@@ -101,13 +112,36 @@
 		padding: 0 16px;
 	}
 	:global(.chartWrap) {
-		margin: 12px 0;
+		margin: 30px 0 10px 0px;
+	}
+	:global(.longcopy .chartWrap) {
+		margin: 40px 0 40px 0px;
+	}
+	:global(.chartTitle) {
+		font-family: var(--font-mono);
+		font-size: 14px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--chartColor);
+		margin: 0 0 8px 0;
 	}
 	:global(.chartImg) {
-		width: 600px;
-		max-width: 100%;
+		width: 100%;
 		height: auto;
 		display: block;
+	}
+	:global(.chartSource) {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		line-height: 15px;
+		color: var(--chartColor);
+		margin: 12px 0 0;
+		font-style: italic;
+	}
+	:global(.chartSource a) {
+		color: rgba(232, 207, 219, 0.55);
+		text-decoration: none;
 	}
 	@media (max-width: 620px) {
 		:global(.chartFiller) {
