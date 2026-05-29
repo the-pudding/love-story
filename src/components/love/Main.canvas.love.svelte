@@ -37,16 +37,16 @@
 
 	// Sprite sheet constants
 	const zoomSpeed = 0.06;
-	const zoomLevel = 7;
-	const zoomIconMinPx = 160;
-	const zoomIconMaxPx = 200;
+	const zoomLevel = 10;
+	const zoomIconMinPx = 240;
+	const zoomIconMaxPx = 300;
 	const spriteAnimSpeed = 1.2;
 	const spriteWidthMin = 0.8;
 	const spriteWidthMax = 1.4;
 	const spriteHeightMin = 0.9;
 	const spriteHeightMax = 1.2;
-	const spriteWidth = 400 / 8;
-	const spriteHeight = 1000 / 10;
+	const spriteWidth = 600 / 8;
+	const spriteHeight = 1500 / 10;
 	const spriteRows = 10;
 	const spriteCols = 8;
 	const zoomSpriteWidth = 300;
@@ -58,22 +58,22 @@
 		"f-stand", "m-stand", "f-down", "m-down", "f-up", "m-up"
 	];
 	const spriteKeys = [
-		"00-intro", "00-intro1",
-		"01-magenta", "02-magenta", "03-magenta", "04-magenta",
-		"01-pink",    "02-pink",    "03-pink",    "04-pink",
-		"01-purple",  "02-purple",  "03-purple",  "04-purple",
-		"01-lavender","02-lavender","03-lavender","04-lavender",
-		"01-yellow",  "02-yellow",  "03-yellow",  "04-yellow",
-		"01-peach",   "02-peach",   "03-peach",   "04-peach",
-		"01-neutral", "02-neutral", "03-neutral", "04-neutral",
-		"01-neutral2","02-neutral2","03-neutral2","04-neutral2"
+		"00-intro1",
+		"01-magenta", "02-magenta", "03-magenta",
+		"01-pink",    "02-pink",    "03-pink",
+		"01-purple",  "02-purple",  "03-purple",
+		"01-lavender","02-lavender","03-lavender",
+		"01-yellow",  "02-yellow",  "03-yellow",
+		"01-peach",   "02-peach",   "03-peach",
+		"01-neutral", "02-neutral", "03-neutral",
+		"01-neutral2","02-neutral2","03-neutral2"
 	];
 	const raceOptions = {
-		"Black, Non-Hispanic": ["04"],
-		"Hispanic":            ["02", "03"],
-		"White, Non-Hispanic": ["01", "02"],
+		"Black, Non-Hispanic": ["03"],
+		"Hispanic":            ["02"],
+		"White, Non-Hispanic": ["01"],
 	};
-	const raceOptionsFallback = ["01", "02", "03", "04"];
+	const raceOptionsFallback = ["01", "02", "03"];
 
 	// HTML loading overlay state
 	let spritesLoaded = $state(0);
@@ -151,7 +151,7 @@
 			this.target_loc = p.createVector(0, 0);
 			this.vel = p.createVector(0, 0);
 			this.acc = p.createVector(0, 0);
-			this.topSpeed = p.random(0.4, 0.6) * sk.personSize;
+			this.topSpeed = p.random(0.6, 0.8) * sk.personSize;
 			this.distance = 100;
 			this.frameCount = 0;
 			this.zoomSpriteAlpha = 0;
@@ -365,7 +365,7 @@
 			p.createCanvas(canvasW, canvasH);
 			p.noSmooth();
 
-			atlasFont = await new FontFace("AtlasTypewriter", "url(assets/AtlasGrotesk-Bold-Web.woff2)")
+			atlasFont = await new FontFace("AtlasTypewriter", "url(assets/AtlasTypewriter-Medium-Web.woff2)")
 				.load()
 				.then((font) => { document.fonts.add(font); return "AtlasTypewriter"; })
 				.catch(() => null);
@@ -391,6 +391,8 @@
 				canvasH = sk.h;
 				p.resizeCanvas(canvasW, canvasH);
 			}
+			p.noSmooth();
+			p.drawingContext.imageSmoothingEnabled = false;
 			p.clear();
 			// p.background(bgColor);
 

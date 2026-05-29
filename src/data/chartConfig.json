@@ -29,16 +29,16 @@
       "never partnered": ["Never partnered", "neutral2"]
     },
     "w2_relationship_end": {
-      "Divorce": ["Divorced", "magenta"],
+      "Divorce": ["Divorced", "pink"],
       "Separation or other breakup": ["Broke up", "peach"],
-      "Partner died": ["Partner died", "purple"],
+      "Partner died": ["Partner died", "magenta"],
       "no report of breakup or partner death": ["Still together", "lavender"],
       "Single": ["Single", "neutral"]
     },
     "w3_relationship_end_combo": {
-      "Got Divorced": ["Divorced", "magenta"],
-      "Separated/ Broke up": ["Broke up", "yellow"],
-      "Partner died": ["Partner died", "peach"],
+      "Got Divorced": ["Divorced", "pink"],
+      "Separated/ Broke up": ["Broke up", "peach"],
+      "Partner died": ["Partner died", "magenta"],
       "no report of breakup or partner death": ["Still together", "lavender"]
     },
     "w1_q34": {
@@ -78,13 +78,13 @@
       "Single": ["Single", "neutral2"]
     },
     "w2_Q32_simple": {
-      "No": ["No", "lavender"],
       "Yes": ["Yes", "pink"],
+      "No": ["No", "lavender"],
       "Single": ["Single", "neutral"]
     },
     "w3_Q32_simple": {
-      "No": ["Did not meet online", "lavender"],
       "Yes": ["Met online", "pink"],
+      "No": ["Did not meet online", "lavender"],
       "Single": ["Single", "neutral"]
     },
     "qual_diff_w1_w2": {
@@ -100,26 +100,26 @@
     },
     "w1_rel_qual_bucket": {
       "Excellent": ["Excellent", "pink"],
-      "Good": ["Good", "purple"],
-      "Fair or worse": ["Fair or worse", "lavender"],
+      "Good": ["Good", "lavender"],
+      "Fair or worse": ["Fair or worse", "peach"],
       "Single": ["Single", "neutral"]
     },
     "w2_rel_qual_bucket": {
      "Excellent": ["Excellent", "pink"],
-      "Good": ["Good", "purple"],
+      "Good": ["Good", "lavender"],
       "Fair or worse": ["Fair or worse", "peach"],
       "Single": ["Single", "neutral2"]
     },
     "w3_rel_qual_bucket": {
       "Excellent": ["Excellent", "pink"],
-      "Good": ["Good", "purple"],
+      "Good": ["Good", "lavender"],
       "Fair or worse": ["Fair or worse", "peach"],
       "Single": ["Single", "neutral2"]
     },
     "w2_fight_bucket": {
       "0": ["No fights", "lavender"],
       "1-3": ["1–3 fights", "purple"],
-      "4+": ["4+ fights", "pink"],
+      "4+": ["4+ fights", "peach"],
       "Single": ["Single", "neutral2"]
     },
     "w2_coronavirus_effect_combo": {
@@ -140,8 +140,8 @@
       "yes": ["Yes", "pink"]
     },
     "w1_ppgender": {
-      "Male": ["Male", "purple"],
-      "Female": ["Female", "pink"]
+      "Female": ["Female", "pink"],
+      "Male": ["Male", "purple"]
     },
     "w1_ppincimp": {
       "<$40K": ["<$40K", "neutral2"],
@@ -161,6 +161,13 @@
       "4+": ["4+ fights", "yellow"],
       "Single": ["Single", "neutral2"]
     },
+    "w1_relate_duration_bucket": {
+      "0–5": ["0–5 yrs", "pink"],
+      "5–10": ["5–10 yrs", "purple"],
+      "10–20": ["10–20 yrs", "lavender"],
+      "20+": ["20+ yrs", "neutral2"],
+      "Single": ["Single", "neutral"]
+    },
     "w3_relationship_duration_bucket": {
       "0–5": ["0–5 yrs", "pink"],
       "5–10": ["5–10 yrs", "purple"],
@@ -178,6 +185,95 @@
       "yes": ["Complete agreement", "pink"],
       "no": ["Not complete agreement", "lavender"],
       "Single": ["Single", "neutral"]
+    },
+    "w1_either_internet_adjusted": {
+      "no": ["Did not meet online", "lavender"],
+      "yes": ["Met online", "pink"]
+    },
+    "w1_no_friend_overlap": {
+      "Single": ["Single", "neutral"],
+      "no": ["Had prior connection", "pink"],
+      "yes": ["No prior connection", "lavender"]
+    },
+    "w2_no_friend_overlap": {
+      "Single": ["Single", "neutral"],
+      "no": ["Had prior connection", "lavender"],
+      "yes": ["No prior connection", "pink"]
+    },
+    "w3_no_friend_overlap": {
+      "Single": ["Single", "neutral"],
+      "no": ["Had prior connection", "pink"],
+      "yes": ["No prior connection", "lavender"]
+    },
+    "w1_met_through_friend": {
+      "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w2_met_through_friend": {
+       "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w3_met_through_friend": {
+      "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w1_met_through_family": {
+       "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w2_met_through_family": {
+      "Single": ["Single", "neutral"],
+      "no": ["No", "lavender"],
+      "yes": ["Yes", "pink"]
+    },
+    "w3_met_through_family": {
+      "Single": ["Single", "neutral"],
+       "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]    
+    },
+    "w1_met_as_through_cowork": {
+       "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w2_met_as_through_cowork": {
+       "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w3_met_as_through_cowork": {
+      "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w1_q24_church": {
+       "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w2_q24_church": {
+       "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w3_q24_church": {
+       "Single": ["Single", "neutral"],
+      "yes": ["Yes", "pink"],
+      "no": ["No", "lavender"]
+    },
+    "w3_pandemic_income_collapsed": {
+      "the pandemic has made my economic situation Worse or Much Worse": ["Worse", "peach"],
+      "no change": ["No change", "lavender"],
+      "the pandemic has made my economic situation Better or Much Better": ["Better", "pink"]
+    },
+    "w3_same_sex_couple": {
+      "Single": ["Single", "neutral"],
+      "no": ["Different-sex partner", "lavender"],
+      "yes": ["Same-sex partner", "pink"]
     },
     "qual_diff_w1_w3": {
       "Much worse": ["Much worse", "purple"],

@@ -10,7 +10,7 @@ const fetchGoogle = async ({ id, gid }) => {
 	const base = "https://docs.google.com";
 	const post = gid
 		? `spreadsheets/u/1/d/${id}/export?format=csv&id=${id}&gid=${gid}`
-		: `document/d/${id}/export?format=txt`;
+		: `document/d/${id}/export?format=txt&cachebust=${Date.now()}`;
 	const url = `${base}/${post}`;
 
 	try {
@@ -195,6 +195,23 @@ const MANUAL_OVERRIDES = {
 	w1_political_alignment: { "Same": 1, "Similar": 2, "Different": 3, "Very different": 4 },
 	w2_political_alignment: { "Same": 1, "Similar": 2, "Different": 3, "Very different": 4 },
 	w3_political_alignment: { "Same": 1, "Similar": 2, "Different": 3, "Very different": 4 },
+	// Friend-network overlap: computed in notebook, not in the sheet
+	w1_no_friend_overlap: { "Single": -1, "no": 0, "yes": 1 },
+	w2_no_friend_overlap: { "Single": -1, "no": 0, "yes": 1 },
+	w3_no_friend_overlap: { "Single": -1, "no": 0, "yes": 1 },
+	// How-met binary variables: recoded 0/1→yes/no in notebook, rolled forward across waves
+	w1_met_through_friend:    { "Single": -1, "no": 0, "yes": 1 },
+	w2_met_through_friend:    { "Single": -1, "no": 0, "yes": 1 },
+	w3_met_through_friend:    { "Single": -1, "no": 0, "yes": 1 },
+	w1_met_through_family:    { "Single": -1, "no": 0, "yes": 1 },
+	w2_met_through_family:    { "Single": -1, "no": 0, "yes": 1 },
+	w3_met_through_family:    { "Single": -1, "no": 0, "yes": 1 },
+	w1_met_as_through_cowork: { "Single": -1, "no": 0, "yes": 1 },
+	w2_met_as_through_cowork: { "Single": -1, "no": 0, "yes": 1 },
+	w3_met_as_through_cowork: { "Single": -1, "no": 0, "yes": 1 },
+	w1_q24_church:            { "Single": -1, "no": 0, "yes": 1 },
+	w2_q24_church:            { "Single": -1, "no": 0, "yes": 1 },
+	w3_q24_church:            { "Single": -1, "no": 0, "yes": 1 },
 };
 
 const fetchMetricTranslations = async () => {

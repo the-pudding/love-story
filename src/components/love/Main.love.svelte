@@ -320,7 +320,6 @@
 				(item) =>
 					item.numericValue >= minMetric && item.numericValue <= maxMetric
 			)
-			.filter((item) => keepNullSort || sortVar !== "w3_relationship_duration_bucket" || nullValue === null || item.numericValue !== nullValue)
 			.filter(
 				(item, _, arr) =>
 					arr
@@ -515,17 +514,10 @@
 			return { positions: posMap, labels: [] };
 		}
 
-		const showNullGroup = keepNullSort || sortVar === "w3_relationship_duration_bucket";
 		let nullGroup = null;
 		for (const group of groupedData) {
 			if (group.value === null || group.value === undefined) {
-				if (!showNullGroup) {
-					for (const p of group.items) {
-						posMap.set(p.id, { x: ((p.id % 60) / 60) * containerWidth, y: -9999 });
-					}
-				} else {
-					nullGroup = group;
-				}
+				nullGroup = group;
 				continue;
 			}
 
@@ -636,8 +628,6 @@
 	);
 	const labels = $derived(isCovid ? [] : layout.labels);
 
-	const keepNullSort = $derived(copy.story[stepIndex]?.keep_null_sort === true);
-
 	// If a step specifies null_value, use it to color people with missing data
 	// e.g. Single people have null for w1_q34 but should get palette[0]
 	const nullValue = $derived(
@@ -647,7 +637,7 @@
 	);
 
 	const nullSortIds = $derived.by(() => {
-		if (!keepNullSort && sortVar !== "w3_relationship_duration_bucket") return new Set();
+		if (sortIdx === -1) return new Set();
 		const nullGroup = groupedData.find(g => g.value === null || g.value === undefined);
 		return new Set(nullGroup?.items.map(p => p.id) ?? []);
 	});
@@ -667,6 +657,18 @@
 
 	const nullIconColor = $derived(nullValue !== null ? getColor(nullValue) : null);
 
+	// Resolve the "Single" color from chartConfig for the current sort variable.
+	// Null-sorted people (unpartnered/Single group) always get this color regardless
+	// of the active metric palette.
+	const singleSortColor = $derived.by(() => {
+		const entry = chartConfig.colors?.[sortVar];
+		if (!entry || Array.isArray(entry)) return null;
+		const singleEntry = Object.entries(entry).find(([k]) => k.toLowerCase() === "single");
+		if (!singleEntry) return null;
+		const colorRef = Array.isArray(singleEntry[1]) ? singleEntry[1][1] : singleEntry[1];
+		return chartConfig.palette?.[colorRef] ?? colorRef;
+	});
+
 	const personColors = $derived.by(() => {
 		const m = new Map();
 		for (const person of data) {
@@ -675,6 +677,7 @@
 			const metricValue = translateMetric(metric, rawMetric);
 			const isNullSort = nullSortIds.has(person.id) || singleSortIds.has(person.id);
 			const isNull = isNullSort || metricValue == null;
+			if (isNullSort && singleSortColor) { m.set(person.id, singleSortColor); continue; }
 			if (isNull && nullIconColor) { m.set(person.id, nullIconColor); continue; }
 			const colorValue = isNull && nullValue !== null ? nullValue : metricValue;
 			m.set(person.id, getColor(colorValue));
@@ -778,7 +781,12 @@
 		<Scrolly increments={100} top={triggerOffset} showLine={true} bind:value>
 			{#each copy.story as stage, i}
 				{@const active = stepIndex === i}
-				<div class="step {stage.addclass ?? ''}" class:active class:has-chart={stage.text?.includes('>>')}>
+				<div
+					class="step {stage.addclass ?? ''}"
+					class:active
+					class:has-chart={stage.text?.includes('>>')}
+					data-observe-child={stage.addclass === 'longcopy' ? '.textContainer' : undefined}
+				>
 					<Text copy={stage.text} />
 				</div>
 			{/each}
@@ -893,14 +901,14 @@
 		gap: 4px;
 	}
 	.exploreHed {
-		font-family: var(--font-sans);
+		font-family: var(--font-mono);
 		font-size: 11px;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 		color: rgba(255, 255, 255, 0.5);
 	}
 	.exploreControls select {
-		font-family: var(--font-sans);
+		font-family: var(--font-mono);
 		font-size: 12px;
 		background-color: transparent;
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='3' viewBox='0 0 4 3'%3E%3Cpath d='M0 0l2 3 2-3z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
@@ -936,11 +944,11 @@
 	}
 
 	.chartTitle {
-		font-family: var(--font-sans);
+		font-family: var(--font-mono);
 		font-size: 18px;
 		font-weight: bold;
 		color: #fff;
-		/* text-transform: uppercase; */
+		text-transform: uppercase;
 		letter-spacing: 0.08em;
 		line-height: 1;
 		margin-bottom: 9px;

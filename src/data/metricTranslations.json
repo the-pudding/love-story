@@ -4966,21 +4966,18 @@
     "yes": 1
   },
   "w1_q24_church": {
-    "(0) no": 0,
+    "Single": -1,
     "no": 0,
-    "(1) yes": 1,
     "yes": 1
   },
   "w2_q24_church": {
-    "(0) no": 0,
+    "Single": -1,
     "no": 0,
-    "(1) yes": 1,
     "yes": 1
   },
   "w3_q24_church": {
-    "(0) no": 0,
+    "Single": -1,
     "no": 0,
-    "(1) yes": 1,
     "yes": 1
   },
   "w1_q24_college": {
@@ -6742,5 +6739,65 @@
     "Similar": 2,
     "Different": 3,
     "Very different": 4
+  },
+  "w1_no_friend_overlap": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w2_no_friend_overlap": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w3_no_friend_overlap": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w1_met_through_friend": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w2_met_through_friend": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w3_met_through_friend": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w1_met_through_family": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w2_met_through_family": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w3_met_through_family": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w1_met_as_through_cowork": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w2_met_as_through_cowork": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
+  },
+  "w3_met_as_through_cowork": {
+    "Single": -1,
+    "no": 0,
+    "yes": 1
   }
 }
