@@ -168,7 +168,7 @@
       "sort_var": "w1_partnership_status",
       "metric": "w2_relationship_end",
       "metric_reverse": "",
-      "text": "There were more <span class=magenta>divorces</span> and <span class=peach>breakups</span> than normal.\r\n\r\n\r\n>> Breakups and divorces, 2010-13 vs. 2017-20|line chart of breakups|breakups|How Couples Meet and Stay Together 2017|https://data.stanford.edu/hcmst2017",
+      "text": "There were more <span class=pink>divorces</span> and <span class=peach>breakups</span> than normal.\r\n\r\n\r\n>> Breakups and divorces, 2010-13 vs. 2017-20|line chart of breakups|breakups|How Couples Meet and Stay Together 2017|https://data.stanford.edu/hcmst2017",
       "null_value": -1,
       "single_sort_values": [
         3,
