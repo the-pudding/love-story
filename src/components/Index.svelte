@@ -9,5 +9,5 @@
 
 <svelte:boundary onerror={(e) => console.error(e)}>
 	<Main />
-	<!-- <Footer recirc={true} /> -->
+	<Footer recirc={true} />
 </svelte:boundary>

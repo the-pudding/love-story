@@ -50,6 +50,7 @@
 	--textColor: #e8cfdb;
 	--chartColor: #cd93af;
 	--hltextcolor: #d162b7;
+	--footer-color: #fff;
 
 	/* "1" second duration */
 	--1s: 1ms;
@@ -163,7 +164,7 @@ svg {
 	position: relative;
 	pointer-events: none;
 	height: 100%;
-	padding: 40vh 0 70vh;
+	padding: 40vh 0 85vh;
 	/* border: 2px solid red; */
 	min-height: 100vh;
 }
@@ -172,7 +173,7 @@ svg {
 	margin-top: 90vh;
 }
 .step.has-chart {
-	padding-bottom: 130vh;
+	padding-bottom: 150vh;
 }
 .step .textContainer {
 	pointer-events: auto !important;
@@ -180,7 +181,7 @@ svg {
 	/* background: var(--bgcolor); */
 	background: black;
 	width: 600px;
-	max-width: 90%;
+	max-width: calc(100% - 15px);
 	padding: 5px 14px 5px 14px;
 	top: 50%;
 	font-size: 16px;
@@ -197,7 +198,7 @@ svg {
 }
  @media (max-width: 620px) { 
 	.step .textContainer {
-		font-size: 14px;
+		font-size: 15px;
 	}
  }
  .step .textContainer span {
@@ -215,40 +216,20 @@ svg {
 	font-weight: 600;
 	padding: 0px;
  } 
- .step .textContainer p .magenta {
-	background: #b30057;
- } 
-  .step .textContainer p .pink {
-	background: #ff24bd;
- } 
-  .step .textContainer p .purple {
-	background: #9629ba;
-  }
-	.step .textContainer p .lavender {
-	background: #826c91;
-	/* color: black; */
- } 
-  .step .textContainer p .yellow {
-	background: #c69e18;
-	/* color: black; */
- } 
-  .step .textContainer p .peach {
-	background:#db8946;
- } 
-  .step .textContainer p .neutral {
-	background: #8b825f;
-	/* color: black; */
- } 
-  .step .textContainer p .neutral2 {
-	background: #7a6157;
-	/* color: black; */
- } 
+ .step .textContainer p .magenta  { background: var(--color-magenta); }
+ .step .textContainer p .pink     { background: var(--color-pink); }
+ .step .textContainer p .purple   { background: var(--color-purple); }
+ .step .textContainer p .lavender { background: var(--color-lavender); }
+ .step .textContainer p .yellow   { background: var(--color-yellow); }
+ .step .textContainer p .peach    { background: var(--color-peach); }
+ .step .textContainer p .neutral  { background: var(--color-neutral); }
+ .step .textContainer p .neutral2 { background: var(--color-neutral2); }
 
-.step .textContainer a {
+.step .textContainer a, .methods a {
 	color: var(--hltextcolor) !important;
 	pointer-events: auto;
 }
-.step .textContainer a:hover {
+.step .textContainer a:hover, .methods a:hover {
 	opacity: 0.8;
 }
 .step:first-child {
@@ -304,8 +285,8 @@ svg {
 }
 .textContainer .smallText {
 	font-size: 14px;
-	opacity: 0.6;
-	line-height: 17px;
+	opacity: 0.7;
+	line-height: 18px;
 	margin: 30px 0 10px;
 	font-style: italic;
 }

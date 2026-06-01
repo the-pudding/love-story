@@ -24,6 +24,11 @@
 		transform: rotate(-4deg);
 		z-index:999;
 	}
+	@media (max-width: 620px) {
+		.wordmark {
+		max-width: 10em;
+		}
+	}
 
 	.wordmark a {
 		border: none;

@@ -12,6 +12,12 @@
 	const data = panelData.data;
 	const lookup = panelData.lookup;
 
+	// Toggle: true = gaps between icon color groups + null-metric icons off-screen
+	//         false = original flat layout, no gaps
+	let iconValueGaps = $state(true);
+	// Gap between color groups, as a multiple of personSize (e.g. 0.5 = half an icon wide)
+	let iconGapRatio = $state(.5);
+
 	let containerWidth = $state(0);
 	let containerHeight = $state(0);
 
@@ -24,8 +30,28 @@
 	});
 	const stepIndex = $derived(value ?? lastStep);
 
+	// Inject palette colors as CSS custom properties (--color-magenta, --color-pink, etc.)
+	// so app.css can reference them via var() — chartConfig.palette is the single source of truth
+	$effect(() => {
+		const root = document.documentElement;
+		for (const [name, hex] of Object.entries(chartConfig.palette ?? {})) {
+			root.style.setProperty(`--color-${name}`, hex);
+		}
+	});
+
+	// Detect prefers-reduced-motion (mirrors the mq store pattern from leftovers)
+	let reduceMotion = $state(false);
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+		reduceMotion = mq.matches;
+		const onChange = () => { reduceMotion = mq.matches; };
+		mq.addEventListener('change', onChange);
+		return () => mq.removeEventListener('change', onChange);
+	});
+
 	// Shared padding constants
-	const canvasPadding = 20;
+	const canvasPadding = $derived(containerWidth < 500 ? 8 : 20);
 	const baseLegendHeight = 60;
 	const chartTitleHeight = 22;
 	let legendContainerHeight = $state(baseLegendHeight);
@@ -48,13 +74,18 @@
 		const availH = containerHeight - legendHeight - canvasPadding * 2;
 		const overheadH = MAX_GROUPS * (labelHeight + groupPadding);
 		const effectiveH = Math.max(availH - overheadH, availH * 0.5);
-		const ps = Math.sqrt((availW * effectiveH) / (2.8 * data.length));
+		const roughPs = Math.sqrt((availW * effectiveH) / (2.8 * data.length));
+		const numGaps = iconValueGaps && sortIdx !== -1 && metricIdx !== -1
+			? Math.max(0, sortedMetricValues.length - 1) : 0;
+		const ps = Math.sqrt(((availW - numGaps * roughPs * iconGapRatio) * effectiveH) / (2.8 * data.length));
 		return Math.max(4, Math.min(40, Math.floor(ps)));
 	});
 
-	const cols = $derived(
-		Math.floor((containerWidth - canvasPadding * 2) / personSize) || 1
-	);
+	const cols = $derived.by(() => {
+		const numGaps = iconValueGaps && sortIdx !== -1 && metricIdx !== -1
+			? Math.max(0, sortedMetricValues.length - 1) : 0;
+		return Math.max(1, Math.floor((containerWidth - canvasPadding * 2 - numGaps * personSize * iconGapRatio) / personSize));
+	});
 
 	// --- Lookup helpers ---
 	function getVarWave(varName) {
@@ -73,28 +104,56 @@
 	// ── Explore mode options ─────────────────────────────────────────────────
 	// Edit these arrays to control what appears in the user-facing dropdowns.
 	const EXPLORE_SORT_OPTIONS = [
-		{ value: "w1_partnership_status", label: "Partnership status (2017)" },
-		{ value: "w2_partner_type", label: "Partnership status (2020)" },
-		{ value: "w3_partner_type", label: "Partnership status (2022)" },
-		{ value: "w1_ppgender", label: "Gender" },
-		{ value: "w1_ppage", label: "Age group" },
-		{ value: "w1_ppincimp", label: "Household income" },
-		{ value: "w1_ppethm", label: "Race / ethnicity" }
+		{ value: "w1_ppgender", label: "Gender",          group: null },
+		{ value: "w1_ppethm",   label: "Race / ethnicity", group: null },
+		{ value: "w1_partnership_status",           label: "Partnership status",   group: "2017" },
+		{ value: "w1_relate_duration_bucket",       label: "Relationship length",  group: "2017" },
+		{ value: "w1_rel_qual_bucket",              label: "Relationship quality",  group: "2017" },
+		{ value: "w1_ppage",                        label: "Age group",             group: "2017" },
+		{ value: "w1_ppincimp",                     label: "Household income",      group: "2017" },
+		{ value: "w2_partner_type",                 label: "Partnership status",    group: "2020" },
+		{ value: "w2_relationship_duration_bucket", label: "Relationship length",   group: "2020" },
+		{ value: "w2_rel_qual_bucket",              label: "Relationship quality",  group: "2020" },
+		{ value: "w2_coronavirus_effect_combo",     label: "Pandemic effect",       group: "2020" },
+		{ value: "w2_ppage",                        label: "Age group",             group: "2020" },
+		{ value: "w2_ppincimp",                     label: "Household income",      group: "2020" },
+		{ value: "w3_partner_type",                 label: "Partnership status",    group: "2022" },
+		{ value: "w3_relationship_duration_bucket", label: "Relationship length",   group: "2022" },
+		{ value: "w3_rel_qual_bucket",              label: "Relationship quality",  group: "2022" },
+		{ value: "w3_coronavirus_effect_combo",     label: "Pandemic effect",       group: "2022" },
+		{ value: "w3_ppage",                        label: "Age group",             group: "2022" },
+		{ value: "w3_ppincimp",                     label: "Household income",      group: "2022" },
 	];
 	const EXPLORE_METRIC_OPTIONS = [
-		{ value: "w1_q34", label: "Relationship quality (2017)" },
-		{ value: "w2_rel_qual_combo", label: "Relationship quality (2020)" },
-		{ value: "w3_rel_qual", label: "Relationship quality (2022)" },
-		{
-			value: "w2_coronavirus_effect_combo",
-			label: "COVID effect on relationship (2020)"
-		},
-		{
-			value: "w3_coronavirus_effect_combo",
-			label: "COVID effect on relationship (2022)"
-		},
-		{ value: "w2_relationship_end", label: "Relationship end, 2017 to 2020" },
-		{ value: "w3_relationship_end_combo", label: "Relationship end, 2020 to 2022" }
+		{ value: "w1_rel_qual_bucket",       label: "Relationship quality",       group: "2017" },
+		{ value: "w1_met_through_friend",    label: "Met through friends",        group: "2017" },
+		{ value: "w1_met_through_family",    label: "Met through family",         group: "2017" },
+		{ value: "w1_met_as_through_cowork", label: "Met through work",           group: "2017" },
+		{ value: "w1_q24_church",            label: "Met through church",         group: "2017" },
+		{ value: "w1_no_friend_overlap",     label: "No prior friend overlap",    group: "2017" },
+		{ value: "w2_rel_qual_bucket",       label: "Relationship quality",       group: "2020" },
+		{ value: "qual_diff_w1_w2_simple",   label: "Relationship change (2017 to 2022)", group: "2020" },
+		{ value: "w2_coronavirus_effect_combo", label: "Pandemic effect",         group: "2020" },
+		{ value: "w2_fight_bucket",          label: "Arguments with partner",     group: "2020" },
+		{ value: "w2_relationship_end",      label: "Relationship ended",         group: "2020" },
+		{ value: "w2_met_through_friend",    label: "Met through friends",        group: "2020" },
+		{ value: "w2_met_through_family",    label: "Met through family",         group: "2020" },
+		{ value: "w2_met_as_through_cowork", label: "Met through work",           group: "2020" },
+		{ value: "w2_q24_church",            label: "Met through church",         group: "2020" },
+		{ value: "w2_Q32_simple",            label: "Met partner online",         group: "2020" },
+		{ value: "w2_no_friend_overlap",     label: "No prior friend overlap",    group: "2020" },
+		{ value: "w3_rel_qual_bucket",       label: "Relationship quality",       group: "2022" },
+		{ value: "qual_diff_w1_w3_simple",   label: "Relationship change (2017 to 2022)", group: "2022" },
+		{ value: "w3_coronavirus_effect_combo", label: "Pandemic effect",         group: "2022" },
+		{ value: "w3_fight_bucket",          label: "Arguments with partner",     group: "2022" },
+		{ value: "w3_relationship_end_combo", label: "Relationship ended",        group: "2022" },
+		{ value: "w3_covid_complete_agree",  label: "COVID safety agreement",     group: "2022" },
+		{ value: "w3_met_through_friend",    label: "Met through friends",        group: "2022" },
+		{ value: "w3_met_through_family",    label: "Met through family",         group: "2022" },
+		{ value: "w3_met_as_through_cowork", label: "Met through work",           group: "2022" },
+		{ value: "w3_q24_church",            label: "Met through church",         group: "2022" },
+		{ value: "w3_Q32_simple",            label: "Met partner online",         group: "2022" },
+		{ value: "w3_no_friend_overlap",     label: "No prior friend overlap",    group: "2022" },
 	];
 	// ─────────────────────────────────────────────────────────────────────────
 
@@ -127,6 +186,12 @@
 	);
 	const zoomLabel = $derived(copy.story[stepIndex]?.zoom_label ?? null);
 	const zoomSprite = $derived(copy.story[stepIndex]?.zoom_sprite ?? null);
+	const bgSprite = $derived(
+		copy.story[stepIndex]?.bgsprite !== undefined && copy.story[stepIndex]?.bgsprite !== ""
+			? Number(copy.story[stepIndex].bgsprite)
+			: null
+	);
+	const hideNoData = $derived(copy.story[stepIndex]?.hideNoData === 1 || copy.story[stepIndex]?.hideNoData === "1");
 
 	// --- Derive min/max directly from metricTranslations ---
 	function getMetricRange(metricName) {
@@ -184,7 +249,7 @@
 	}
 
 	// --- Color Scale Logic ---
-	const nullColor = "#826c91";
+	const nullColor = chartConfig.palette?.lavender ?? "#826c91";
 
 	const palette = $derived.by(() => {
 		const fallback = [
@@ -515,6 +580,67 @@
 		}
 
 		let nullGroup = null;
+
+		function isSingleGroup(value, label = "") {
+			if (value === null || value === undefined) return true;
+			const checkStr = (String(value) + " " + String(label)).toLowerCase();
+			return checkStr.includes("unpartner") || checkStr.includes("never") || checkStr.includes("single");
+		}
+
+		function placeGroup(items, groupValue = null, groupLabel = "") {
+			// Move null-metric items off-screen right, but keep them if the sort group
+			// itself represents unpartnered/single people (they legitimately have no data)
+			let validItems = items;
+			if (iconValueGaps && hideNoData && !isSingleGroup(groupValue, groupLabel) && metricIdx !== -1) {
+				validItems = [];
+				for (const item of items) {
+					const rawVal = item[wave]?.[metricIdx];
+					if (rawVal === null || rawVal === undefined || rawVal === "Single") {
+						posMap.set(item.id, { x: Infinity, y: 0 });
+					} else {
+						validItems.push(item);
+					}
+				}
+			}
+
+			const numItems = validItems.length;
+			if (numItems === 0) return 0;
+
+			const numCols = Math.min(cols, numItems);
+			const baseRows = Math.floor(numItems / numCols);
+			const extraItems = numItems % numCols;
+			const totalRows = baseRows + (extraItems > 0 ? 1 : 0);
+
+			// Build color-group index map (order of first appearance, items are pre-sorted by color)
+			let colorGroupMap = null;
+			if (iconValueGaps) {
+				colorGroupMap = new Map();
+				let nextIdx = 0;
+				for (const item of validItems) {
+					const color = personColors.get(item.id);
+					if (!colorGroupMap.has(color)) colorGroupMap.set(color, nextIdx++);
+				}
+			}
+
+			// Same column-major layout for both modes; gaps mode nudges each item right
+			// by its color-group index × gapRatio × personSize — layout otherwise identical
+			let itemIndex = 0;
+			for (let col = 0; col < numCols; col++) {
+				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
+				for (let row = 0; row < rowsInThisCol; row++) {
+					const item = validItems[itemIndex++];
+					const nudge = colorGroupMap
+						? (colorGroupMap.get(personColors.get(item.id)) ?? 0) * iconGapRatio * personSize
+						: 0;
+					posMap.set(item.id, {
+						x: col * personSize + nudge,
+						y: currentY + row * personSize * 2
+					});
+				}
+			}
+			return totalRows;
+		}
+
 		for (const group of groupedData) {
 			if (group.value === null || group.value === undefined) {
 				nullGroup = group;
@@ -524,42 +650,15 @@
 			labelPositions.push({ text: group.label, x: 0, y: currentY });
 			currentY += labelHeight;
 
-			const numItems = group.items.length;
-			const numCols = Math.min(cols, numItems);
-			const baseRows = Math.floor(numItems / numCols);
-			const extraItems = numItems % numCols;
-			let itemIndex = 0;
-			for (let col = 0; col < numCols; col++) {
-				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
-				for (let row = 0; row < rowsInThisCol; row++) {
-					posMap.set(group.items[itemIndex++].id, {
-						x: col * personSize,
-						y: currentY + row * personSize * 2
-					});
-				}
-			}
-			const totalRows = baseRows + (extraItems > 0 ? 1 : 0);
+			const totalRows = placeGroup(group.items, group.value, group.label);
 			currentY += totalRows * personSize * 2 + groupPadding;
 		}
 
-		// Place null-sort group last, labeled "Single"
+		// Place null-sort group last, labeled "Single" — always show all icons
 		if (nullGroup) {
 			labelPositions.push({ text: "Single", x: 0, y: currentY });
 			currentY += labelHeight;
-			const numItems = nullGroup.items.length;
-			const numCols = Math.min(cols, numItems);
-			const baseRows = Math.floor(numItems / numCols);
-			const extraItems = numItems % numCols;
-			let itemIndex = 0;
-			for (let col = 0; col < numCols; col++) {
-				const rowsInThisCol = baseRows + (col < extraItems ? 1 : 0);
-				for (let row = 0; row < rowsInThisCol; row++) {
-					posMap.set(nullGroup.items[itemIndex++].id, {
-						x: col * personSize,
-						y: currentY + row * personSize * 2
-					});
-				}
-			}
+			placeGroup(nullGroup.items, null);
 		}
 
 		return { positions: posMap, labels: labelPositions };
@@ -714,8 +813,8 @@
 			{positions}
 			{personColors}
 			{personSize}
-			{zoomId}
-			{zoomLabel}
+			zoomId={isCovid ? null : zoomId}
+			zoomLabel={isCovid ? null : zoomLabel}
 			selectedId={clickedPersonId}
 			{labels}
 			sort_varpadding={canvasPadding}
@@ -726,7 +825,10 @@
 				clickedPersonId = id;
 			}}
 			introMode={!metric && !sortVar}
-			{zoomSprite}
+			zoomSprite={isCovid ? null : zoomSprite}
+			bgSprite={windowScrollY > 50 && (value !== undefined || (hasEnteredStory && lastStep !== 0)) ? bgSprite : null}
+			snapMode={reduceMotion}
+			gapRatio={iconGapRatio}
 		/>
 
 		{#if containerWidth > 0}
@@ -761,16 +863,27 @@
 				<label class="exploreLabel">
 					<span class="exploreHed">group by</span>
 					<select bind:value={exploreSortVar}>
-						{#each EXPLORE_SORT_OPTIONS as opt}
+						{#each EXPLORE_SORT_OPTIONS.filter(o => !o.group) as opt}
 							<option value={opt.value}>{opt.label}</option>
+						{/each}
+						{#each ["2017", "2020", "2022"] as yr}
+							<optgroup label={yr}>
+								{#each EXPLORE_SORT_OPTIONS.filter(o => o.group === yr) as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</optgroup>
 						{/each}
 					</select>
 				</label>
 				<label class="exploreLabel">
 					<span class="exploreHed">color by</span>
 					<select bind:value={exploreMetric}>
-						{#each EXPLORE_METRIC_OPTIONS as opt}
-							<option value={opt.value}>{opt.label}</option>
+						{#each ["2017", "2020", "2022"] as yr}
+							<optgroup label={yr}>
+								{#each EXPLORE_METRIC_OPTIONS.filter(o => o.group === yr) as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</optgroup>
 						{/each}
 					</select>
 				</label>
@@ -785,7 +898,6 @@
 					class="step {stage.addclass ?? ''}"
 					class:active
 					class:has-chart={stage.text?.includes('>>')}
-					data-observe-child={stage.addclass === 'longcopy' ? '.textContainer' : undefined}
 				>
 					<Text copy={stage.text} />
 				</div>
@@ -796,7 +908,6 @@
 
 <div class="methods">
 	<h4>Methodology</h4>
-	<p>TKTKT TKTK TKTKT KTKTK TKTKTKTK</p>
 	<Text copy={copy.methods} />
 </div>
 
@@ -829,7 +940,7 @@
 	}
 	.scrollCue {
 		position: absolute;
-		bottom: 50px;
+		bottom: 14vh;
 		left: 50%;
 		transform: translateX(-50%);
 		display: flex;

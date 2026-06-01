@@ -10,8 +10,12 @@
 	 *
 	 * optional params with defaults
 	 * <Scrolly root={null} top={0} bottom={0} increments={100}>
+	 *
+	 * Per-node override: add data-scrolly-top="<px>" to a step element to use
+	 * a different top margin for just that step's IntersectionObserver.
 	 */
-	
+	import { untrack } from 'svelte';
+
 	let {
 		root = null,
 		top = 0,
@@ -49,7 +53,11 @@
 			mostInView();
 		};
 
-		const marginTop = top ? top * -1 : 0;
+		// Per-node override: data-scrolly-top="<px>" takes priority over global `top`
+		const raw = node.dataset?.scrollyTop;
+		const nodeTop = (raw !== undefined && raw !== '') ? Number(raw) : top;
+
+		const marginTop = nodeTop ? nodeTop * -1 : 0;
 		const marginBottom = bottom ? bottom * -1 : 0;
 		const rootMargin = `${marginTop}px 0px ${marginBottom}px 0px`;
 		const options = { root, rootMargin, threshold };
@@ -67,11 +75,15 @@
 	}
 
 	$effect(() => {
+		// Recompute threshold only when increments changes.
+		// untrack update() so reading top inside createObserver doesn't make
+		// this effect re-run on top/bottom changes — that's the second effect's job.
+		threshold.length = 0;
 		for (let i = 0; i < increments + 1; i++) {
 			threshold.push(i / increments);
 		}
 		nodes = container.querySelectorAll(":scope > *:not(iframe)");
-		update();
+		untrack(() => update());
 	});
 
 	$effect(() => {

@@ -3,18 +3,13 @@
 	import { Tween } from "svelte/motion";
 	import { cubicOut } from "svelte/easing";
 	import copy from "$data/copy.json";
+	import chartConfig from "$data/chartConfig.json";
 	const bgColor = "#1d0f1a";
 	const textColor = "#a399a8";
-	const hexToColorName = {
-		"#b30057": "magenta",
-		"#ff24bd": "pink",
-		"#9629ba": "purple",
-		"#826c91": "lavender",
-		"#f8d255": "yellow",
-		"#db8946": "peach",
-		"#cec59f": "neutral",
-		"#a68b7f": "neutral2"
-	};
+	// Derived from chartConfig.palette — single source of truth
+	const hexToColorName = Object.fromEntries(
+		Object.entries(chartConfig.palette ?? {}).map(([name, hex]) => [hex, name])
+	);
 	const firstID = Number(copy.story[0]?.zoom_id) || null;
 	let {
 		data,
@@ -25,14 +20,17 @@
 		zoomLabel = null,
 		selectedId = null,
 		labels = [],
-		padding = 20,
+		padding = 10,
 		topPadding = 50,
 		w,
 		h,
 		onpersonclick = null,
 		fastMode = false,
+		snapMode = false,
 		introMode = false,
-		zoomSprite = null
+		zoomSprite = null,
+		bgSprite = null, // row index (0–6) into bg.webp to overlay on top of zoom sprite
+		gapRatio = 1   // gap between icon color groups, as a multiple of personSize
 	} = $props();
 
 	// Sprite sheet constants
@@ -59,21 +57,23 @@
 	];
 	const spriteKeys = [
 		"00-intro1",
-		"01-magenta", "02-magenta", "03-magenta",
-		"01-pink",    "02-pink",    "03-pink",
-		"01-purple",  "02-purple",  "03-purple",
-		"01-lavender","02-lavender","03-lavender",
-		"01-yellow",  "02-yellow",  "03-yellow",
-		"01-peach",   "02-peach",   "03-peach",
-		"01-neutral", "02-neutral", "03-neutral",
-		"01-neutral2","02-neutral2","03-neutral2"
+		"01-magenta", "03-magenta", "04-magenta",
+		"01-pink",    "03-pink",    "04-pink",
+		"01-purple",  "03-purple",  "04-purple",
+		"01-lavender","03-lavender","04-lavender",
+		"01-yellow",  "03-yellow",  "04-yellow",
+		"01-peach",   "03-peach",   "04-peach",
+		"01-neutral", "03-neutral", "04-neutral"
+		// "01-neutral2","02-neutral2","03-neutral2"
 	];
 	const raceOptions = {
-		"Black, Non-Hispanic": ["03"],
-		"Hispanic":            ["02"],
-		"White, Non-Hispanic": ["01"],
+		"Black, Non-Hispanic":   ["04"],
+		"Hispanic":              ["03"],
+		"White, Non-Hispanic":   ["01"],
+		"Other, Non-Hispanic":   ["03"],
+		"2+ Races, Non-Hispanic": ["03"],
 	};
-	const raceOptionsFallback = ["01", "02", "03"];
+	const raceOptionsFallback = ["01", "03", "04"];
 
 	// HTML loading overlay state
 	let spritesLoaded = $state(0);
@@ -102,7 +102,10 @@
 		labels: [],
 		zoom: 1,
 		introMode: false,
-		zoomSprite: null
+		zoomSprite: null,
+		snapMode: false,
+		gapRatio: 1,
+		bgSprite: null
 	};
 
 	$effect(() => {
@@ -120,6 +123,9 @@
 		sk.labels = labels ?? [];
 		sk.onpersonclick = onpersonclick;
 		sk.fastMode = fastMode;
+		sk.snapMode = snapMode;
+		sk.gapRatio = gapRatio;
+		sk.bgSprite = bgSprite;
 		sk.introMode = introMode;
 		sk.zoomSprite = zoomSprite;
 	});
@@ -151,7 +157,7 @@
 			this.target_loc = p.createVector(0, 0);
 			this.vel = p.createVector(0, 0);
 			this.acc = p.createVector(0, 0);
-			this.topSpeed = p.random(0.6, 0.8) * sk.personSize;
+			this.topSpeed = p.random(0.7, 1.1) * sk.personSize;
 			this.distance = 100;
 			this.frameCount = 0;
 			this.zoomSpriteAlpha = 0;
@@ -177,8 +183,14 @@
 			const target = sk.positions.get(this.id);
 			if (target) {
 				const ps = sk.personSize;
-				this.target_loc.x = target.x + ps / 2 + sk.padding - sk.w / 2;
-				this.target_loc.y = target.y + ps + sk.topPadding - sk.h / 2;
+				if (!isFinite(target.x)) {
+					// No metric answer — slide just off the right edge
+					this.target_loc.x = sk.w / 2 + ps * 3;
+					this.target_loc.y = 0;
+				} else {
+					this.target_loc.x = target.x + ps / 2 + sk.padding - sk.w / 2;
+					this.target_loc.y = target.y + ps + sk.topPadding - sk.h / 2;
+				}
 			}
 
 			if (isMe && isZoomed) {
@@ -191,6 +203,15 @@
 			if (sk.introMode && firstID && this.id === firstID) {
 				this.target_loc.x = 0;
 				this.target_loc.y = 0;
+			}
+
+			// Snap mode: teleport directly to target with no physics animation
+			if (sk.snapMode) {
+				this.loc.set(this.target_loc);
+				this.vel.set(0, 0);
+				this.acc.set(0, 0);
+				this.distance = 0;
+				return;
 			}
 
 			const desired = p.createVector(
@@ -227,10 +248,13 @@
 
 			if (!isZoomed || isMe) {
 				const ps = sk.personSize;
-				this.loc.x = Math.max(
-					-sk.w / 2 + ps / 2,
-					Math.min(sk.w / 2 - ps / 2, this.loc.x)
-				);
+				const target = sk.positions.get(this.id);
+				if (!target || isFinite(target.x)) {
+					this.loc.x = Math.max(
+						-sk.w / 2 + ps / 2,
+						Math.min(sk.w / 2 - ps / 2, this.loc.x)
+					);
+				}
 			}
 		}
 
@@ -261,10 +285,10 @@
 					}
 
 					const rowIdx = zoomSpriteRowIndex[this.displayedZoomSprite] ?? 0;
-					const frameIdx = Math.floor(this.frameCount) % 8;
-					this.frameCount += 0.1 * spriteAnimSpeed;
+					const frameIdx = sk.snapMode ? 0 : Math.floor(this.frameCount) % 8;
+					if (!sk.snapMode) this.frameCount += 0.1 * spriteAnimSpeed;
 					const drawSize = ps * 2;
-					const zoomYNudge = ps * 0.5;
+					const zoomYNudge = ps * 0.5 + (sk.w < 500 ? sk.h * 0.15 / sk.zoom : 0);
 					p.tint(255, this.zoomSpriteAlpha);
 					p.image(zoomSheet, -drawSize / 2, -drawSize + zoomYNudge, drawSize, drawSize,
 						frameIdx * zoomSpriteWidth, rowIdx * zoomSpriteHeight, zoomSpriteWidth, zoomSpriteHeight);
@@ -277,10 +301,10 @@
 			if (sk.introMode && firstID && this.id === firstID) {
 				const zoomSheet = sprites["00-intro1"];
 				if (zoomSheet) {
-					const frameIdx = Math.floor(this.frameCount) % 8;
-					this.frameCount += 0.1 * spriteAnimSpeed;
+					const frameIdx = sk.snapMode ? 0 : Math.floor(this.frameCount) % 8;
+					if (!sk.snapMode) this.frameCount += 0.1 * spriteAnimSpeed;
 					const drawSize = p.constrain(ps * 2 * zoomLevel, zoomIconMinPx, zoomIconMaxPx);
-					const zoomYNudge = drawSize * 0.25;
+					const zoomYNudge = drawSize * 0.25 + (sk.w < 500 ? sk.h * 0.15 / sk.zoom : 0);
 					p.image(zoomSheet, -drawSize / 2, -drawSize + zoomYNudge, drawSize, drawSize,
 						frameIdx * zoomSpriteWidth, 0, zoomSpriteWidth, zoomSpriteHeight);
 					return;
@@ -301,7 +325,10 @@
 			if (!spriteSheet) return;
 
 			let rowLabel;
-			if (this.distance < 4 && Math.abs(this.vel.x) + Math.abs(this.vel.y) < 1) {
+			if (sk.snapMode) {
+				rowLabel = this.gender + "-stand";
+				this.frameCount = 0;
+			} else if (this.distance < 4 && Math.abs(this.vel.x) + Math.abs(this.vel.y) < 1) {
 				rowLabel = this.gender + "-stand";
 				this.frameCount += 0.1 * spriteAnimSpeed;
 			} else if (this.vel.y > 0 && this.vel.y > Math.abs(this.vel.x)) {
@@ -317,7 +344,7 @@
 
 			const rowIndex = spriteRowLabels.indexOf(rowLabel);
 			if (rowIndex === -1) return;
-			const frameIdx = Math.floor(this.frameCount) % spriteCols;
+			const frameIdx = sk.snapMode ? 0 : Math.floor(this.frameCount) % spriteCols;
 			const sx = frameIdx * spriteWidth;
 			const sy = rowIndex * spriteHeight + 2;
 			const sw = ps * (isMe ? 1 : this.widthMult);
@@ -354,6 +381,10 @@
 		let canvasH = 0;
 		let zoom = 1;
 		let targetZoom = 1;
+		let bgSpriteAlpha = 0;
+		let bgSpriteDisplayedRow = null;
+		let bgSpritePrevAlpha = 0;
+		let bgSpritePrevRow = null;
 
 		const sprites = {};
 		let atlasFont = null;
@@ -364,6 +395,12 @@
 			canvasH = sk.h || 1;
 			p.createCanvas(canvasW, canvasH);
 			p.noSmooth();
+			// p5 sets touch-action:none which blocks iOS scroll — restore vertical panning
+			p.canvas.style.touchAction = 'pan-y';
+			// Prevent p5 from calling preventDefault() on touch events (blocks scroll)
+			p.touchStarted = () => {};
+			p.touchMoved = () => {};
+			p.touchEnded = () => {};
 
 			atlasFont = await new FontFace("AtlasTypewriter", "url(assets/AtlasTypewriter-Medium-Web.woff2)")
 				.load()
@@ -383,6 +420,13 @@
 					() => { console.warn("Failed to load sprite:", key); spritesLoaded++; }
 				);
 			});
+
+			// Individual animated GIFs per row — p5 animates them automatically
+			for (let row = 0; row < 7; row++) {
+				const r = row;
+				p.loadImage(`assets/love/${r}.gif`, (img) => { sprites[`bg${r}`] = img; },
+					() => console.warn(`Failed to load ${r}.gif`));
+			}
 		};
 
 		p.draw = () => {
@@ -390,6 +434,7 @@
 				canvasW = sk.w;
 				canvasH = sk.h;
 				p.resizeCanvas(canvasW, canvasH);
+				p.canvas.style.touchAction = 'pan-y'; // resizeCanvas resets touch-action
 			}
 			p.noSmooth();
 			p.drawingContext.imageSmoothingEnabled = false;
@@ -408,7 +453,7 @@
 			} else {
 				targetZoom = 1;
 			}
-			zoom = p.lerp(zoom, targetZoom, zoomSpeed);
+			zoom = sk.snapMode || sk.zoomSprite !== null ? targetZoom : p.lerp(zoom, targetZoom, zoomSpeed);
 			sk.zoom = zoom;
 
 			p.translate(canvasW / 2, canvasH / 2);
@@ -434,6 +479,41 @@
 				}
 			}
 
+			// Update bg sprite alpha state once per frame
+			{
+				const bgTargetRow = (sk.bgSprite !== null && sk.bgSprite !== undefined)
+					? Number(sk.bgSprite) : null;
+
+				if (bgTargetRow !== bgSpriteDisplayedRow) {
+					if (bgSpriteAlpha > 0) {
+						bgSpritePrevRow = bgSpriteDisplayedRow;
+						bgSpritePrevAlpha = bgSpriteAlpha;
+					}
+					bgSpriteDisplayedRow = bgTargetRow;
+					bgSpriteAlpha = 0;
+				}
+
+				bgSpriteAlpha = bgTargetRow !== null
+					? Math.min(255, bgSpriteAlpha + zoomSpriteFadeSpeed)
+					: Math.max(0, bgSpriteAlpha - zoomSpriteFadeSpeed);
+				bgSpritePrevAlpha = Math.max(0, bgSpritePrevAlpha - zoomSpriteFadeSpeed);
+			}
+
+			// Background GIFs — always behind people
+			{
+				const zoomYNudge = sk.personSize * 0.5 + (sk.w < 500 ? sk.h * 0.15 / sk.zoom : 0);
+				const bgDrawSize = sk.personSize * 4;
+				if (bgSpritePrevAlpha > 0 && bgSpritePrevRow !== null) {
+					const img = sprites[`bg${bgSpritePrevRow}`];
+					if (img) { p.tint(255, bgSpritePrevAlpha * 0.6); p.image(img, -bgDrawSize / 2, zoomYNudge - bgDrawSize, bgDrawSize, bgDrawSize); }
+				}
+				if (bgSpriteAlpha > 0 && bgSpriteDisplayedRow !== null) {
+					const img = sprites[`bg${bgSpriteDisplayedRow}`];
+					if (img) { p.tint(255, bgSpriteAlpha * 0.6); p.image(img, -bgDrawSize / 2, zoomYNudge - bgDrawSize, bgDrawSize, bgDrawSize); }
+				}
+				p.noTint();
+			}
+
 			for (let i = 0; i < all_people.length; i++) {
 				const collide = checkCollision(all_people[i], i, all_people, sk.personSize);
 				all_people[i].seek(collide);
@@ -448,12 +528,14 @@
 				p.textAlign(p.LEFT, p.TOP);
 				p.fill(textColor);
 				p.noStroke();
+				const mobileLabelNudge = sk.w < 500 ? sk.h * 0.01 : 0;
 				for (const label of sk.labels) {
 					const lx = label.x + sk.padding - sk.w / 2;
-					const ly = label.y + sk.topPadding - sk.h / 2 - 8;
+					const ly = label.y + sk.topPadding - sk.h / 2 - 8 + mobileLabelNudge;
 					p.text(label.text, lx, ly);
 				}
 			}
+
 		};
 
 		p.mouseClicked = (event) => {
@@ -466,7 +548,7 @@
 			for (const person of all_people) {
 				if (
 					Math.abs(worldX - person.loc.x) < ps / 2 &&
-					Math.abs(worldY - person.loc.y) < ps
+					Math.abs(worldY - (person.loc.y - ps)) < ps
 				) {
 					found = person.id;
 					break;
@@ -519,6 +601,11 @@
 {/if}
 
 <style>
+	/* Override p5's inline touch-action:none so vertical scroll works on iOS */
+	div :global(canvas) {
+		touch-action: pan-y !important;
+	}
+
 	@keyframes spin {
 		to { transform: rotate(360deg); }
 	}

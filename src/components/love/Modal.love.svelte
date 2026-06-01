@@ -163,10 +163,13 @@
 	}
 
 	function statRows(person, waveKey, varNames) {
-		return varNames.flatMap((varName) => {
+		return varNames.map((varName) => {
 			const val = getVal(person, waveKey, varName);
-			if (val === null || val === undefined || val === "Single") return [];
-			return [{ label: varDescriptions[varName] ?? varName, value: formatStatVal(varName, String(val)) }];
+			const missing = val === null || val === undefined || val === "Single";
+			return {
+				label: varDescriptions[varName] ?? varName,
+				value: missing ? "--" : formatStatVal(varName, String(val))
+			};
 		});
 	}
 

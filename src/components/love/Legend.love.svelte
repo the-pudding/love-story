@@ -5,8 +5,8 @@
 <div class="legend">
 	{#each items as item}
 		<div class="legend-row">
-			<div class="swatch" style="background-color: {item.color};"></div>
-			<span class="label">{item.label}</span>
+			<!-- <div class="swatch" style="background-color: {item.color};"></div> -->
+			<span class="label" style="background-color: {item.color};">{item.label}</span>
 		</div>
 	{/each}
 </div>
@@ -44,5 +44,12 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		padding: 0px 4px;
+		text-shadow:
+  -1px -1px 2px rgba(0,0,0,0.3),
+   1px -1px 2px rgba(0,0,0,0.3),
+  -1px  1px 2px rgba(0,0,0,0.3),
+   1px  1px 2px rgba(0,0,0,0.3),
+   0 0 8px rgba(0,0,0,0.3);
 	}
 </style>
