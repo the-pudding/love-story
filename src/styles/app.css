@@ -47,9 +47,9 @@
 	--color-placeholder: var(--color-gray-500);
 
 	--bgcolor: #1d0f1a;
-	--textColor: #e8cfdb;
+	--textColor: #e8c8d8;
 	--chartColor: #cd93af;
-	--hltextcolor: #d162b7;
+	--hltextcolor: #e8cfdb;
 	--footer-color: #fff;
 
 	/* "1" second duration */
@@ -205,6 +205,7 @@ svg {
 	padding: 0px 3px;
 	display: inline-block;
 	text-shadow: 0px 0px 3px #000;
+	text-box-trim: trim-start;
  }
   .step .textContainer p .white {
 	color: white;
@@ -228,6 +229,7 @@ svg {
 .step .textContainer a, .methods a {
 	color: var(--hltextcolor) !important;
 	pointer-events: auto;
+	border-bottom: 0.5px solid var(--hltextcolor);
 }
 .step .textContainer a:hover, .methods a:hover {
 	opacity: 0.8;

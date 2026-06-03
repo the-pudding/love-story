@@ -36,6 +36,7 @@
 	}
 
 	.label {
+		text-box-trim: trim-start;
 		font-family: var(--font-mono);
 		font-size: clamp(10px, 2.2vw, 15px);
 		line-height: 1.3;

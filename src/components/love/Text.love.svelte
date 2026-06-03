@@ -27,7 +27,7 @@
 						`<div class="chartWrap">` +
 						(title ? `<p class="chartTitle">${title}</p>` : '') +
 						`<picture>` +
-						`<source media="(max-width: 499px)" srcset="assets/love_charts/${svgFile.replace(/\.svg$/i, '')}_mobile.svg">` +
+						`<source media="(max-width: 540px)" srcset="assets/love_charts/${svgFile.replace(/\.svg$/i, '')}_mobile.svg">` +
 						`<img src="assets/love_charts/${svgFile}.svg" alt="${altText}" class="chartImg">` +
 						`</picture>` +
 						(sourceStr ? `<p class="chartSource">${sourceStr}</p>` : '') +
@@ -139,17 +139,14 @@
 		margin: 12px 0 0;
 		font-style: italic;
 	}
-	:global(.chartSource a) {
-		color: rgba(232, 207, 219, 0.55);
+	:global(.chartWrap .chartSource a) {
+		color: var(--chartColor) !important;
 		text-decoration: none;
 	}
 	@media (max-width: 620px) {
 		:global(.chartFiller) {
-			width: 400px;
+			width: 100%;
 			height: 300px;
-		}
-		:global(.chartImg) {
-			width: 400px;
 		}
 	}
 </style>

@@ -1,4 +1,5 @@
 <script>
+	import { fade, fly } from 'svelte/transition';
 	import Scrolly from "$components/helpers/Scrolly.svelte";
 	import Canvas from "$components/love/Main.canvas.love.svelte";
 	import Text from "$components/love/Text.love.svelte";
@@ -423,6 +424,8 @@
 		return iconReverse ? items.reverse() : items;
 	});
 
+	const legendKey = $derived(legendData.map(d => `${d.label}:${d.color}`).join('|'));
+
 	// --- Sort Logic ---
 	const sortedData = $derived.by(() => {
 		if (sortIdx === -1) {
@@ -835,10 +838,16 @@
 			{#if chartTitle || legendData.length > 0}
 				<div class="legendContainer" bind:clientHeight={legendContainerHeight}>
 					{#if chartTitle}
-						<div class="chartTitle">{chartTitle}</div>
+						{#key chartTitle}
+							<div class="chartTitle" out:fade={{ duration: 0 }} in:fly={{ y: 6, duration: 1200 }}>{chartTitle}</div>
+						{/key}
 					{/if}
 					{#if legendData.length > 0}
-						<Legend items={legendData} />
+						{#key legendKey}
+							<div out:fade={{ duration: 0 }} in:fly={{ y: 6, duration: 1200 }}>
+								<Legend items={legendData} />
+							</div>
+						{/key}
 					{/if}
 				</div>
 			{/if}
