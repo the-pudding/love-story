@@ -36,7 +36,7 @@
 	--color-link-hover: var(--color-black);
 	--color-focus: var(--color-gray-500);
 	--color-mark: var(--color-yellow);
-	--color-selection: var(--color-gray-300);
+	--color-selection: #3d1f38;
 	--color-border: var(--color-gray-300);
 	--color-button-fg-primary: var(--color-white);
 	--color-button-bg-primary: var(--color-gray-900);
@@ -147,8 +147,8 @@ svg {
 .legendContainer {
 	position: absolute;
 	top: 20px;
-	left: 20px;
-	width: calc(100% - 40px);
+	left: 10px;
+	width: calc(100% - 20px);
 	z-index: 50;
 }
 @media (max-width: 420px) {
