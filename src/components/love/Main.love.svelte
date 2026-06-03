@@ -16,6 +16,8 @@
 	// Toggle: true = gaps between icon color groups + null-metric icons off-screen
 	//         false = original flat layout, no gaps
 	let iconValueGaps = $state(true);
+	// Social mode: locks text and legend to 20px for screen recordings / social sharing
+	let socialMode = $state(true);
 	// Gap between color groups, as a multiple of personSize (e.g. 0.5 = half an icon wide)
 	let iconGapRatio = $state(.5);
 
@@ -805,7 +807,7 @@
 
 <svelte:window bind:innerHeight bind:scrollY={windowScrollY} />
 
-<section id="scrolly">
+<section id="scrolly" class:social-mode={socialMode}>
 	<div
 		class="visualContainer"
 		bind:clientWidth={containerWidth}
@@ -832,6 +834,7 @@
 			bgSprite={windowScrollY > 50 && (value !== undefined || (hasEnteredStory && lastStep !== 0)) ? bgSprite : null}
 			snapMode={reduceMotion}
 			gapRatio={iconGapRatio}
+			{socialMode}
 		/>
 
 		{#if containerWidth > 0}
@@ -1087,5 +1090,16 @@
 		.chartTitle {
 			font-size: 15px;
 		}
+	}
+
+	/* Social mode: fixed sizes at all breakpoints */
+	:global(.social-mode .textContainer) {
+		font-size: 20px !important;
+	}
+	:global(.social-mode .label) {
+		font-size: 24px !important;
+	}
+	.social-mode .chartTitle {
+		font-size: 22px !important;
 	}
 </style>

@@ -30,7 +30,8 @@
 		introMode = false,
 		zoomSprite = null,
 		bgSprite = null, // row index (0–6) into bg.webp to overlay on top of zoom sprite
-		gapRatio = 1   // gap between icon color groups, as a multiple of personSize
+		gapRatio = 1,   // gap between icon color groups, as a multiple of personSize
+		socialMode = false
 	} = $props();
 
 	// Sprite sheet constants
@@ -105,7 +106,8 @@
 		zoomSprite: null,
 		snapMode: false,
 		gapRatio: 1,
-		bgSprite: null
+		bgSprite: null,
+		socialMode: false
 	};
 
 	$effect(() => {
@@ -128,6 +130,7 @@
 		sk.bgSprite = bgSprite;
 		sk.introMode = introMode;
 		sk.zoomSprite = zoomSprite;
+		sk.socialMode = socialMode;
 	});
 
 	let container;
@@ -522,7 +525,7 @@
 			}
 
 			if (sk.labels?.length > 0) {
-				const fontSize = Math.max(14, Math.min(18, sk.personSize * 1.1));
+				const fontSize = sk.socialMode ? 24 : Math.max(14, Math.min(18, sk.personSize * 1.1));
 				if (atlasFont) p.textFont(atlasFont);
 				p.textSize(fontSize);
 				p.textAlign(p.LEFT, p.TOP);
