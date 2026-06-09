@@ -17,7 +17,7 @@
 	//         false = original flat layout, no gaps
 	let iconValueGaps = $state(true);
 	// Social mode: locks text and legend to 20px for screen recordings / social sharing
-	let socialMode = $state(true);
+	let socialMode = $state(false);
 	// Gap between color groups, as a multiple of personSize (e.g. 0.5 = half an icon wide)
 	let iconGapRatio = $state(.5);
 
@@ -919,7 +919,7 @@
 </section>
 
 <div class="methods">
-	<h4>Methodology</h4>
+	<h5>Methodology</h5>
 	<Text copy={copy.methods} />
 </div>
 
@@ -1102,4 +1102,5 @@
 	.social-mode .chartTitle {
 		font-size: 22px !important;
 	}
+	
 </style>

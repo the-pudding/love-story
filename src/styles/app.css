@@ -229,7 +229,10 @@ svg {
 .step .textContainer a, .methods a {
 	color: var(--hltextcolor) !important;
 	pointer-events: auto;
-	border-bottom: 0.5px solid var(--hltextcolor);
+	border-bottom: 0.5px solid var(--hltextcolor) !important;
+}
+.methods a {
+	border-bottom: 1px solid var(--hltextcolor) !important;
 }
 .step .textContainer a:hover, .methods a:hover {
 	opacity: 0.8;
@@ -299,4 +302,12 @@ svg {
 	margin: 100px auto;
 	color: var(--textColor);
 	border-top: 1px solid var(--textColor);
+}
+.methods h5 {
+	font-size: 15px;
+	font-weight: bold;
+}
+.methods .textContainer p {
+	font-size: 13px !important;
+	opacity: 0.7;
 }
